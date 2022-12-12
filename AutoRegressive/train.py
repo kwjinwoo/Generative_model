@@ -7,9 +7,9 @@ from models.model import PixelCNN
 from tqdm import tqdm
 
 
-BATCH_SIZE = 32
+BATCH_SIZE = 128
 LEARNING_RATE = 0.0005
-NUM_EPOCHS = 15
+NUM_EPOCHS = 50
 SAVE_DIR = "./saved_model/"
 os.makedirs(SAVE_DIR, exist_ok=True)
 
@@ -34,7 +34,7 @@ train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE,
 valid_loader = DataLoader(valid_dataset, batch_size=BATCH_SIZE,
                           shuffle=False)
 
-model = PixelCNN(num_layers=8, h=64)
+model = PixelCNN()
 model.to(device)
 
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
@@ -53,5 +53,5 @@ for epoch in range(NUM_EPOCHS):
         mean_loss += loss.item()
     print(f"EPOCH {epoch:>3d} loss: {mean_loss / len(train_loader):>6f}")
 
-save_path = os.path.join(SAVE_DIR, "pixelcnn.pt")
-torch.save(model.state_dict(), save_path)
+    save_path = os.path.join(SAVE_DIR, "pixelcnn{}.pt".format(epoch))
+    torch.save(model.state_dict(), save_path)
