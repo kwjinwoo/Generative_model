@@ -23,6 +23,7 @@ class Generator(nn.Module):
             nn.ReLU(True),
             nn.ConvTranspose2d(in_channels=64, out_channels=1, kernel_size=5, stride=2, padding=2,
                                output_padding=1, bias=False),
+            nn.Sigmoid()
         )
 
     def forward(self, inputs):
@@ -33,7 +34,7 @@ class Generator(nn.Module):
 
     @staticmethod
     def compute_loss(fake_output):
-        total_loss = F.binary_cross_entropy_with_logits(torch.ones_like(fake_output), fake_output)
+        total_loss = F.binary_cross_entropy_with_logits(fake_output, torch.ones_like(fake_output))
         return total_loss
 
 
@@ -59,8 +60,8 @@ class Discriminator(nn.Module):
 
     @staticmethod
     def compute_loss(real_output, fake_output):
-        real_loss = F.binary_cross_entropy_with_logits(torch.ones_like(real_output), real_output)
-        fake_loss = F.binary_cross_entropy_with_logits((torch.zeros_like(fake_output)), fake_output)
+        real_loss = F.binary_cross_entropy_with_logits(real_output, torch.ones_like(real_output))
+        fake_loss = F.binary_cross_entropy_with_logits(fake_output, torch.zeros_like(fake_output))
         total_loss = real_loss + fake_loss
         return total_loss
 

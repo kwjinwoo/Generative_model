@@ -53,7 +53,6 @@ for epoch in range(NUM_EPOCHS):
 
         generated = generator(noise)
         fake_output = discriminator(generated)
-        real_output = discriminator(x)
         generator.zero_grad()
         gen_loss = generator.compute_loss(fake_output)
         generator_optimizer.zero_grad()
