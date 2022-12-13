@@ -43,6 +43,7 @@ for epoch in range(NUM_EPOCHS):
     mean_loss = 0
     for x, _ in tqdm(train_loader):
         x = x.to(device)
+        x = torch.where(x == 0., 0., 1.)
 
         optimizer.zero_grad()
         out = model(x)
