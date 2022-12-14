@@ -99,4 +99,6 @@ class VAE(nn.Module):
 
 if __name__ == "__main__":
     vae = VAE(2)
-    print(vae)
+    import torchsummary
+
+    print(torchsummary.summary(vae, (1, 28, 28)))
