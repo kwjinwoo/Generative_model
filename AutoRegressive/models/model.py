@@ -82,3 +82,8 @@ if __name__ == "__main__":
 
     print("A mask", A_mask_conv.mask)
     print("B mask", B_mask_conv.mask)
+
+    model = PixelCNN()
+    import torchsummary
+
+    print(torchsummary.summary(model, (1, 28, 28)))
