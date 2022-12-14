@@ -23,3 +23,13 @@ bce_loss = nn.BCELoss()
 out = model(x)
 loss = bce_loss(out, x)
 ```
+## Train
+Run train.py
+
+
+## Generate
+Run sampling.py
+
+![](./assets/pixelCNN_generate.png)
+![](./assets/pixelCNN_half_generate.png)
+

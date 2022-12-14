@@ -14,11 +14,11 @@ SAVE_DIR = "./saved_model/"
 os.makedirs(SAVE_DIR, exist_ok=True)
 
 
-train_dataset = datasets.MNIST(root="./data/",
+train_dataset = datasets.MNIST(root="../data/",
                                train=True,
                                download=True,
                                transform=transforms.ToTensor())
-valid_dataset = datasets.MNIST(root="./data/",
+valid_dataset = datasets.MNIST(root="../data/",
                                train=False,
                                download=True,
                                transform=transforms.ToTensor())
