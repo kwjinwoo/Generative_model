@@ -77,9 +77,10 @@ class VAE(nn.Module):
         logit = self.decoder(z)
         return logit
 
-    def sampling(self, num_samples):
-        eps = torch.randn((num_samples, self.latent_dim)).cuda()
-        return self.sigmoid(self.decoder(eps))
+    def sampling(self, eps):
+        with torch.no_grad():
+            generated = self.sigmoid(self.decoder(eps))
+        return generated
 
     def compute_loss(self, inputs):
         mean, log_var = self.encoding(inputs)
