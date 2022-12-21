@@ -67,7 +67,13 @@ class Discriminator(nn.Module):
 
 
 if __name__ == "__main__":
-    temp = torch.randn((4, 1, 28, 28))
-    gan = Discriminator()
-    temp_out = gan(temp)
-    print(temp_out.size())
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    g = Generator(100)
+    d = Discriminator()
+    from torchinfo import summary
+
+    g = g.to(device)
+    d = d.to(device)
+    print(summary(g, (4, 100)))
+    print(summary(d, (1, 1, 28, 28)))
