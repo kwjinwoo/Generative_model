@@ -15,5 +15,5 @@ $\log(E_{z \sim q_{\phi}(z|X)}[\frac{P_\theta(X,z)}{q_{\phi}(z|X)}]) \ge E_{z \s
 $ELBO = E_{z \sim q_{\phi}(z|X)}[\log(\frac{P_\theta(X,z)}{q_{\phi}(z|X)})]$   
 $E_{z \sim q_{\phi}(z|X)}[\log(\frac{P_\theta(X,z)}{q_{\phi}(z|X)})] = E_{z \sim q_{\phi}(z|X)}[\log P_{\theta}(X,z)] - E_{z \sim q_{\phi}(z|X)}[\log q_{\phi}(z|X)]$   
 $\qquad \qquad \qquad \qquad \quad = E_{z \sim q_{\phi}(z|X)}[\log P_{\theta}(X,z)] - E_{z \sim q_{\phi}(z|X)}[P(z)]$   
-$\qquad \qquad \qquad \qquad \qquad \qquad - E_{z \sim q_{\phi}(z|X)}[\log q_{\phi}(z|X)] - E_{z \sim q_{\phi}(z|X)}[P(z)]$   
+$\qquad \qquad \qquad \qquad \qquad \qquad - E_{z \sim q_{\phi}(z|X)}[\log q_{\phi}(z|X)] + E_{z \sim q_{\phi}(z|X)}[P(z)]$   
 $\qquad \qquad \qquad \qquad \quad = E_{z \sim q_{\phi}(z|X)}[\log P_{\theta}(X|z)] - D_{KL}(q_{\phi}(z|X)||P(z))$    
