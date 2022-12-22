@@ -1,8 +1,8 @@
 # Generative_model
 This repository is generative model implementation
-* AutoRegressive Model(PixelCNN)
-* LatentVariable Model(Variational Auto Encoder)
-* GAN(DCGAN)
+* [AutoRegressive Model(PixelCNN)](https://github.com/kwjinwoo/Generative_model/tree/main/AutoRegressive)
+* [LatentVariable Model(Variational Auto Encoder)](https://github.com/kwjinwoo/Generative_model/tree/main/LatentVariable)
+* [GAN(DCGAN)](https://github.com/kwjinwoo/Generative_model/tree/main/GAN)
 
 ## Reference
 1. https://keras.io/examples/generative/pixelcnn/
