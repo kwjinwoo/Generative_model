@@ -31,3 +31,12 @@ logpz = log_normal_pdf(z, torch.tensor([0.], device=mean.device),
 ```python
 logqz_x = log_normal_pdf(z, mean, log_var)
 ```
+
+## Train
+Run train.py
+
+
+## Generate
+Run sampling.py
+
+![](./assets/VAE_generate.png)
