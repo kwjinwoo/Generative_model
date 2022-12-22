@@ -10,7 +10,8 @@ PixelCNN implementation
 ## Optimize
 $D_{KL}(P_{data}||P_{\theta}) = E_{X \sim P_{data}}[\log \frac{P_{data}(X)}{P_{\theta}(X)}] = E_{X \sim P_{data}}[\log P_{data}(X)] - E_{X \sim P_{data}}[\log P_{\theta}(X)]$   
 $\to E_{X \sim P_{data}}[\log P_{data}(X)]$ = Constance (because, not depend on $P_{\theta}$)   
-$\therefore$ Maximize $E_{x \sim P_{data}}[\log P_{\theta}(X)]
+$\therefore$ Maximize $E_{x \sim P_{data}}[\log P_{\theta}(X)]$    
+($D_{KL} \ge 0$ AND $D_{KL} = 0 \to P_{data} = P_{\theta}$)
 
 $BCELoss(P_{\theta}(X), P_{data}(X)) = -(P_{data}(X)\cdot\log P_{\theta}(X) + (1 - P_{data}(X)\ logP_{\theta}(X))$
 = $-\sum_XP_{data}(X)\log P_{theta}(X) = -E_{X \sim P_{data}}[\log P_{\theta}(X)]$   
