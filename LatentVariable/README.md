@@ -17,3 +17,8 @@ $E_{z \sim q_{\phi}(z|X)}[\log(\frac{P_\theta(X,z)}{q_{\phi}(z|X)})] = E_{z \sim
 $\qquad \qquad \qquad \qquad \quad = E_{z \sim q_{\phi}(z|X)}[\log P_{\theta}(X,z)] - E_{z \sim q_{\phi}(z|X)}[P(z)]$   
 $\qquad \qquad \qquad \qquad \qquad \qquad - E_{z \sim q_{\phi}(z|X)}[\log q_{\phi}(z|X)] + E_{z \sim q_{\phi}(z|X)}[P(z)]$   
 $\qquad \qquad \qquad \qquad \quad = E_{z \sim q_{\phi}(z|X)}[\log P_{\theta}(X|z)] - D_{KL}(q_{\phi}(z|X)||P(z))$    
+$\to$ Maximize $\log P_{\theta}(X|z)$, $\log P(z)$, $-\log q_{\phi}(z|X)$   
+* $\log P_{\theta}(X|z)$   
+```python
+
+```
