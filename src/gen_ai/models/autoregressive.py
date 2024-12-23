@@ -40,3 +40,61 @@ class MaskedConv2D(nn.Conv2d):
         """
         self.weight.data *= self.mask
         return super().forward(inputs)
+
+
+class MaskedConvResidualBlock(nn.Module):
+    """Masked Conv's Residual Block.
+    it consist of 2 conv and 1 masked conv with relu activation.
+
+    Args:
+        in_channels (int): the number of input channels.
+    """
+
+    def __init__(self, in_channels: int) -> None:
+        super().__init__()
+
+        self.layers = nn.Sequential(
+            [
+                nn.Conv2d(in_channels=in_channels, out_channels=in_channels // 2, kernel_size=1, bias=False),
+                nn.ReLU(),
+                MaskedConv2D(
+                    mask_type="B",
+                    in_channels=in_channels // 2,
+                    out_channels=in_channels // 2,
+                    kernel_size=3,
+                    padding=1,
+                    bias=False,
+                ),
+                nn.ReLU(),
+                nn.Conv2d(in_channels=in_channels // 2, out_channels=in_channels, kernel_size=1, bias=False),
+                nn.ReLU(),
+            ]
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """apply MaskedConvResidualBlock to input tensor x.
+
+        Args:
+            x (torch.Tensor): input tensor.
+
+        Returns:
+            torch.Tensor: MaskedConvResidualBlock's output.
+        """
+        out = self.layers(x)
+        out += x
+        return out
+
+
+class PixelCNN(nn.Module):
+    def __init__(self, num_channels: int, num_layers: int, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.input_layer = nn.Sequential(
+            [
+                MaskedConv2D(
+                    mask_type="A", in_channels=1, out_channels=num_channels, kernel_size=7, padding=2, bias=False
+                ),
+                nn.BatchNorm2d(num_channels),
+                nn.ReLU(),
+            ]
+        )
