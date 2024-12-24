@@ -56,6 +56,7 @@ class MaskedConvResidualBlock(nn.Module):
         self.layers = nn.Sequential(
             [
                 nn.Conv2d(in_channels=in_channels, out_channels=in_channels // 2, kernel_size=1, bias=False),
+                nn.BatchNorm2d(in_channels // 2),
                 nn.ReLU(),
                 MaskedConv2D(
                     mask_type="B",
@@ -65,8 +66,10 @@ class MaskedConvResidualBlock(nn.Module):
                     padding=1,
                     bias=False,
                 ),
+                nn.BatchNorm2d(in_channels // 2),
                 nn.ReLU(),
                 nn.Conv2d(in_channels=in_channels // 2, out_channels=in_channels, kernel_size=1, bias=False),
+                nn.BatchNorm2d(in_channels // 2),
                 nn.ReLU(),
             ]
         )
@@ -86,6 +89,13 @@ class MaskedConvResidualBlock(nn.Module):
 
 
 class PixelCNN(nn.Module):
+    """Pixel CNN module.
+
+    Args:
+        num_channels (int): the number of channels used at all conv modules.
+        num_layers (int): the nuber of residual blocks.
+    """
+
     def __init__(self, num_channels: int, num_layers: int, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
@@ -98,3 +108,26 @@ class PixelCNN(nn.Module):
                 nn.ReLU(),
             ]
         )
+        self.layers = nn.Sequential(*[MaskedConvResidualBlock(in_channels=num_channels) for _ in range(num_layers)])
+        self.last_conv = nn.Sequential(
+            MaskedConv2D(mask_type="B", in_channels=num_channels, out_channels=num_channels, kernerl_size=1),
+            nn.ReLU(),
+            MaskedConv2D(mask_type="B", in_channels=num_channels, out_channels=num_channels, kernel_size=1),
+            nn.ReLU(),
+        )
+        self.out_layer = nn.Sequential(nn.Conv2d(in_channels=num_channels, out_channels=1, kernel_size=1), nn.Sigmoid())
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        """feed fowrading pixel cnn.
+
+        Args:
+            inputs (torch.Tensor): input tensor.
+
+        Returns:
+            torch.Tensor: pixel cnn's output.
+        """
+        x = self.input_layer(inputs)
+        x = self.layers(x)
+        x = self.last_conv(x)
+        out = self.out_layer(x)
+        return out
