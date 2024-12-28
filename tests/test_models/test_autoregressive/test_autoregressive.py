@@ -28,7 +28,7 @@ def test_masked_conv_residual_block():
 
 
 def test_pixel_cnn():
-    pixel_cnn = PixelCNN(120, 5)
+    pixel_cnn = PixelCNN(120, 5, 1)
 
     tmp_input = torch.randn(1, 1, 10, 10)
 

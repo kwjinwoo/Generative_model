@@ -54,7 +54,12 @@ class MaskedConvResidualBlock(nn.Module):
         super().__init__()
 
         self.layers = nn.Sequential(
-            nn.Conv2d(in_channels=in_channels, out_channels=in_channels // 2, kernel_size=1, bias=False),
+            nn.Conv2d(
+                in_channels=in_channels,
+                out_channels=in_channels // 2,
+                kernel_size=1,
+                bias=False,
+            ),
             nn.BatchNorm2d(in_channels // 2),
             nn.ReLU(),
             MaskedConv2D(
@@ -67,7 +72,12 @@ class MaskedConvResidualBlock(nn.Module):
             ),
             nn.BatchNorm2d(in_channels // 2),
             nn.ReLU(),
-            nn.Conv2d(in_channels=in_channels // 2, out_channels=in_channels, kernel_size=1, bias=False),
+            nn.Conv2d(
+                in_channels=in_channels // 2,
+                out_channels=in_channels,
+                kernel_size=1,
+                bias=False,
+            ),
             nn.BatchNorm2d(in_channels),
             nn.ReLU(),
         )
@@ -94,23 +104,43 @@ class PixelCNN(nn.Module):
         num_layers (int): the nuber of residual blocks.
     """
 
-    def __init__(self, num_channels: int, num_layers: int, *args, **kwargs) -> None:
+    def __init__(self, num_channels: int, num_layers: int, img_channel: int, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self.input_layer = nn.Sequential(
-            MaskedConv2D(mask_type="A", in_channels=1, out_channels=num_channels, kernel_size=7, padding=3, bias=False),
+            MaskedConv2D(
+                mask_type="A",
+                in_channels=img_channel,
+                out_channels=num_channels,
+                kernel_size=7,
+                padding=3,
+                bias=False,
+            ),
             nn.BatchNorm2d(num_channels),
             nn.ReLU(),
         )
         self.layers = nn.Sequential(*[MaskedConvResidualBlock(in_channels=num_channels) for _ in range(num_layers)])
         self.last_conv = nn.Sequential(
-            MaskedConv2D(mask_type="B", in_channels=num_channels, out_channels=num_channels, kernel_size=1, bias=False),
+            MaskedConv2D(
+                mask_type="B",
+                in_channels=num_channels,
+                out_channels=num_channels,
+                kernel_size=1,
+                bias=False,
+            ),
             nn.ReLU(),
-            MaskedConv2D(mask_type="B", in_channels=num_channels, out_channels=num_channels, kernel_size=1, bias=False),
+            MaskedConv2D(
+                mask_type="B",
+                in_channels=num_channels,
+                out_channels=num_channels,
+                kernel_size=1,
+                bias=False,
+            ),
             nn.ReLU(),
         )
         self.out_layer = nn.Sequential(
-            nn.Conv2d(in_channels=num_channels, out_channels=1, kernel_size=1, bias=False), nn.Sigmoid()
+            nn.Conv2d(in_channels=num_channels, out_channels=1, kernel_size=1, bias=False),
+            nn.Sigmoid(),
         )
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
