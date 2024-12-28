@@ -23,4 +23,4 @@ repos:
     rev: 5.13.2
     hooks:
       - id: isort
-        args: [-l=120]
+        args: [-l=120, "--profile", "black"]

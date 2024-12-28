@@ -1,0 +1,11 @@
+model:
+  model_type: "autoregressive"
+  img_channel: 3
+  num_channels: 128
+  num_layers: 3
+
+data:
+  data_type: "mnist"
+
+train:
+  num_epochs: 10

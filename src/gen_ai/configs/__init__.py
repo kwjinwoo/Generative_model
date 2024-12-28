@@ -81,7 +81,7 @@ def get_model_type(config_file: YAML) -> str:
     Returns:
         str: model type.
     """
-    model_type = config_file.get("model_type")
+    model_type = config_file["model"].get("model_type")
     if model_type is None:
         raise KeyError("Model Type is not defined in Config File.")
     return model_type.lower()
