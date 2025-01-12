@@ -1,6 +1,7 @@
 import argparse
 
 from gen_ai.configs import ConfigMaker
+from gen_ai.models import GenAIModelFactory
 
 
 def train() -> None:
@@ -17,3 +18,5 @@ def train() -> None:
 
     config_maker = ConfigMaker(args.config)
     config = config_maker.make_config()
+
+    model = GenAIModelFactory(model_type=args.model_type, config=config).make_model()

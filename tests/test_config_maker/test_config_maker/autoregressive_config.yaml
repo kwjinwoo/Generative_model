@@ -6,6 +6,7 @@ model:
 
 data:
   data_type: "mnist"
+  batch_size: 64
 
 train:
   num_epochs: 10

@@ -105,5 +105,6 @@ def test_config_maker(config_file, file_name, request, datadir):
     assert config.model_config.num_channels == config_file["model"]["num_channels"]
 
     assert config.data_config.data_type == config_file["data"]["data_type"]
+    assert config.data_config.batch_size == config_file["data"]["batch_size"]
 
     assert config.train_config.num_epochs == config_file["train"]["num_epochs"]
