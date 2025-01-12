@@ -1,6 +1,19 @@
 import torch
 import torch.nn as nn
 
+from gen_ai.models import GenAIModelBase
+
+
+class AutoregressiveModel(GenAIModelBase):
+    def __init__(self, trainer, sampler) -> None:
+        super().__init__(trainer, sampler)
+
+    def train(self) -> None:
+        self.trainer.train()
+
+    def sample(self) -> None:
+        self.sampler.sample()
+
 
 class MaskedConv2D(nn.Conv2d):
     """Applies Masked Convolution over an unputs.

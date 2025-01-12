@@ -1,8 +1,32 @@
-import torch.nn as nn
+from abc import ABC, abstractmethod
 
 from gen_ai.configs import GenAIConfig
 from gen_ai.enums import ModelType
-from gen_ai.models.autoregressive import PixelCNN
+from gen_ai.models.autoregressive import AutoregressiveModel, PixelCNN
+
+
+class GenAIModelBase(ABC):
+    """Generative AI model base class."""
+
+    def __init__(self, trainer, sampler) -> None:
+        """Initializes the model base class.
+
+        Args:
+            trainer (_type_): _description_
+            sampler (_type_): _description_
+        """
+        self.trainer = trainer
+        self.sampler = sampler
+
+    @abstractmethod
+    def train(self) -> None:
+        """Train the model."""
+        pass
+
+    @abstractmethod
+    def sample(self) -> None:
+        """Sample from the model."""
+        pass
 
 
 class GenAIModelFactory:
@@ -18,7 +42,7 @@ class GenAIModelFactory:
         self.model_type = model_type
         self.config = config
 
-    def make_model(self) -> nn.Module:
+    def make_model(self) -> GenAIModelBase:
         """creates a model based on the model type.
 
         Raises:
@@ -28,7 +52,10 @@ class GenAIModelFactory:
             nn.Module: model
         """
         if self.model_type == ModelType.autoregressive:
-            return PixelCNN(**self.config.model_config)
+            model = PixelCNN(**self.config.model_config)
+            trainer = None
+            sampler = None
+            return AutoregressiveModel(model, trainer, sampler)
         else:
             raise ValueError(f"Unsupported model type: {self.model_type}")
 
