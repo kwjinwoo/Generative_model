@@ -15,16 +15,16 @@ class AutoregressiveModelTrainer(GenAITrainerBase):
 
         self._criterion = nn.BCELoss()
 
-    def train(self, device: torch.device) -> None:
+    def train(self) -> None:
         self.model.train()
-        self.model.to(device)
+        self.model.to(self.device)
 
         print("Training Start")
         for epoch in range(self.config.num_epochs):
             mean_loss = 0
             pbar = tqdm(self.data_loader)
             for x, _ in pbar:
-                x = x.to(device)
+                x = x.to(self.device)
 
                 loss = self.one_step(x)
                 mean_loss += loss.item()

@@ -8,8 +8,8 @@ class AutoregressiveModel(GenAIModelBase):
     def __init__(self, trainer, sampler) -> None:
         super().__init__(trainer, sampler)
 
-    def train(self, device: torch.device) -> None:
-        self.trainer.train(device)
+    def train(self) -> None:
+        self.trainer.train()
 
     def sample(self) -> None:
         self.sampler.sample()

@@ -23,6 +23,7 @@ class GenAITrainerBase(ABC):
         self.model = model
         self.data_loader = data_loader
         self.config = config
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         self._optimizer = self._get_optimizer()
         self._criterion = None
