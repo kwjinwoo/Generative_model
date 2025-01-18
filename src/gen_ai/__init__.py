@@ -24,3 +24,5 @@ def train() -> None:
     config = config_maker.make_config()
 
     model = GenAIModelFactory(model_type=args.model_type, config=config).make_model()
+    model.train()
+    model.save(args.save_dir)

@@ -129,4 +129,4 @@ class ConfigMaker:
             raise ValueError(f"Model Type {model_type} is not supported.")
 
 
-__all__ = ["GenAIConfig", "ConfigMaker"]
+__all__ = ["GenAIConfig", "ConfigMaker", "TrainConfig", "ModelConfig", "DataConfig"]

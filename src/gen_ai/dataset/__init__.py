@@ -2,17 +2,17 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST
 from torchvision.transforms import Compose, ToTensor
 
-from gen_ai.configs import GenAIConfig
+from gen_ai.configs.data_configs import DataConfig
 
 
 class MNISTLoader:
     """MNIST DataLoader Class."""
 
-    def __init__(self, config: GenAIConfig, path: str = "./data") -> None:
+    def __init__(self, config: DataConfig, path: str = "./data") -> None:
         """MNISTLoader Constructor.
 
         Args:
-            config (GenAIConfig): config.
+            config (DataConfig): config.
             path (str, optional): path to save data. Defaults to "./data".
         """
         self.config = config
@@ -61,9 +61,9 @@ class MNISTLoader:
         """
         return DataLoader(
             dataset=self.dataset,
-            batch_size=self.config.data_config["batch_size"],
+            batch_size=self.config["batch_size"],
             shuffle=True,
-            num_workers=self.config.data_config.get("num_workers", 2),
+            num_workers=self.config.get("num_workers", 2),
         )
 
 
