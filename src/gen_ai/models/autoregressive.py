@@ -168,7 +168,7 @@ class AutoregressiveModel(GenAIModelBase):
         super().__init__(torch_module, trainer, sampler)
 
     def train(self) -> None:
-        self.trainer.train()
+        self.trainer.train(self.torch_module)
 
     def sample(self) -> None:
         self.sampler.sample()

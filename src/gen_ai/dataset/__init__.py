@@ -5,8 +5,8 @@ from torchvision.transforms import Compose, ToTensor
 from gen_ai.configs.data_configs import DataConfig
 
 
-class MNISTLoader:
-    """MNIST DataLoader Class."""
+class MNISTDataset:
+    """MNIST Dataset Class."""
 
     def __init__(self, config: DataConfig, path: str = "./data") -> None:
         """MNISTLoader Constructor.
@@ -61,10 +61,10 @@ class MNISTLoader:
         """
         return DataLoader(
             dataset=self.dataset,
-            batch_size=self.config["batch_size"],
+            batch_size=self.config.batch_size,
             shuffle=True,
-            num_workers=self.config.get("num_workers", 2),
+            num_workers=self.config.num_workers,
         )
 
 
-__all__ = ["MNISTLoader"]
+__all__ = ["MNISTDataset"]

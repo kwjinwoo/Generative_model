@@ -37,8 +37,6 @@ class GenAIModelBase(ABC):
         Args:
             save_dir (str): save_dir
         """
-        save_path = f"{save_dir}/{self.__class__.__name__}.pt"
-        self.trainer.save(save_path)
         pass
 
     @abstractmethod

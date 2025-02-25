@@ -26,12 +26,12 @@ class GenAIModelFactory:
             GenAIModelBase: model
         """
         if self.model_type == ModelType.autoregressive:
-            from gen_ai.dataset import MNISTLoader
+            from gen_ai.dataset import MNISTDataset
             from gen_ai.models.autoregressive import AutoregressiveModel
             from gen_ai.trainer.autoregressive_model_trainer import AutoregressiveModelTrainer
 
             torch_module = AutoregressiveModel.torch_module_class(**self.config.model_config)
-            trainer = AutoregressiveModelTrainer(MNISTLoader(self.config.data_config), self.config.train_config)
+            trainer = AutoregressiveModelTrainer(MNISTDataset(self.config.data_config), self.config.train_config)
             sampler = None
             return AutoregressiveModel(torch_module, trainer, sampler)
         else:

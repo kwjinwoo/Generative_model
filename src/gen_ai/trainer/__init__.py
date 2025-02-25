@@ -4,20 +4,20 @@ import torch
 import torch.nn as nn
 
 from gen_ai.configs import TrainConfig
-from gen_ai.dataset import MNISTLoader
+from gen_ai.dataset import MNISTDataset
 
 
 class GenAITrainerBase(ABC):
     """Generative AI Trainer Base Class."""
 
-    def __init__(self, data_loader: MNISTLoader, config: TrainConfig) -> None:
+    def __init__(self, dataset: MNISTDataset, config: TrainConfig) -> None:
         """Initializes the model base class.
 
         Args:
-            data_loader (MNISTLoader): data loader for training
+            data_loader (MNISTDataset): data loader for training
             config (TrainConfig): training configuration
         """
-        self.data_loader = data_loader
+        self.dataset = dataset
         self.config = config
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
