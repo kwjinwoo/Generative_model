@@ -10,7 +10,6 @@ def train() -> None:
     parser.add_argument(
         "model_type",
         type=str,
-        required=True,
         choices=["autoregressive"],
         help="Generative Model Type.",
     )
