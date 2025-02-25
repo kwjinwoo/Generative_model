@@ -1,7 +1,7 @@
 from gen_ai.configs import GenAIConfig
 from gen_ai.enums import ModelType
 from gen_ai.models import GenAIModelBase
-
+from dataclasses import asdict
 
 class GenAIModelFactory:
     """Generative AI model factory."""
@@ -30,6 +30,9 @@ class GenAIModelFactory:
             from gen_ai.models.autoregressive import AutoregressiveModel
             from gen_ai.trainer.autoregressive_model_trainer import AutoregressiveModelTrainer
 
+            module_config = asdict(self.config.model_config)
+            module_config.pop("model_type")
+            
             torch_module = AutoregressiveModel.torch_module_class(**self.config.model_config)
             trainer = AutoregressiveModelTrainer(MNISTDataset(self.config.data_config), self.config.train_config)
             sampler = None
