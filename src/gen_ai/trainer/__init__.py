@@ -6,32 +6,35 @@ import torch.nn as nn
 from gen_ai.configs import TrainConfig
 from gen_ai.dataset import MNISTLoader
 
-from .autoregressive_model_trainer import AutoregressiveModelTrainer
-
 
 class GenAITrainerBase(ABC):
     """Generative AI Trainer Base Class."""
 
-    def __init__(self, model: nn.Module, data_loader: MNISTLoader, config: TrainConfig) -> None:
+    def __init__(self, data_loader: MNISTLoader, config: TrainConfig) -> None:
         """Initializes the model base class.
 
         Args:
-            model (nn.Module): model to train
             data_loader (MNISTLoader): data loader for training
             config (TrainConfig): training configuration
         """
-        self.model = model
         self.data_loader = data_loader
         self.config = config
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        self._optimizer = self._get_optimizer()
+        self._optimizer = None
         self._criterion = None
 
     @property
     def optimizer(self) -> torch.optim.Optimizer:
         """Get optimizer for the model."""
+        if self._optimizer is None:
+            raise ValueError("Optimizer is not set.")
         return self._optimizer
+
+    @optimizer.setter
+    def optimizer(self, optimizer: torch.optim.Optimizer) -> None:
+        """Set optimizer for the model."""
+        self._optimizer = optimizer
 
     @property
     def criterion(self) -> nn.Module:
@@ -45,8 +48,11 @@ class GenAITrainerBase(ABC):
         """Set criterion for the model."""
         self._criterion = criterion
 
-    def _get_optimizer(self) -> torch.optim.Optimizer:
+    def _get_optimizer(self, model: nn.Module) -> torch.optim.Optimizer:
         """Get optimizer for the model.
+
+        Args:
+            model (nn.Module): model for training.
 
         Raises:
             ValueError: if the optimizer is invalid, raise ValueError.
@@ -55,9 +61,9 @@ class GenAITrainerBase(ABC):
             torch.optim.Optimizer: optimizer for the model.
         """
         if self.config.optimizer == "adam":
-            return torch.optim.Adam(self.model.parameters(), lr=self.config.learning_rate)
+            return torch.optim.Adam(model.parameters(), lr=self.config.learning_rate)
         elif self.config.optimizer == "sgd":
-            return torch.optim.SGD(self.model.parameters(), lr=self.config.learning_rate)
+            return torch.optim.SGD(model.parameters(), lr=self.config.learning_rate)
         else:
             raise ValueError(f"Invalid optimizer {self.config.optimizer}")
 
@@ -75,4 +81,4 @@ class GenAITrainerBase(ABC):
         torch.save(self.model.state_dict(), save_path)
 
 
-__all__ = ["GenAITrainerBase", "AutoregressiveModelTrainer"]
+__all__ = ["GenAITrainerBase"]

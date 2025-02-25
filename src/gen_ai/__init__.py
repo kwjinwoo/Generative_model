@@ -1,7 +1,7 @@
 import argparse
 
 from gen_ai.configs import ConfigMaker
-from gen_ai.models import GenAIModelFactory
+from gen_ai.factory import GenAIModelFactory
 
 
 def train() -> None:

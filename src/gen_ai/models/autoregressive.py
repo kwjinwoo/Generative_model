@@ -4,17 +4,6 @@ import torch.nn as nn
 from gen_ai.models import GenAIModelBase
 
 
-class AutoregressiveModel(GenAIModelBase):
-    def __init__(self, trainer, sampler) -> None:
-        super().__init__(trainer, sampler)
-
-    def train(self) -> None:
-        self.trainer.train()
-
-    def sample(self) -> None:
-        self.sampler.sample()
-
-
 class MaskedConv2D(nn.Conv2d):
     """Applies Masked Convolution over an unputs.
     if mask type is 'A', center of features is not maked.
@@ -170,3 +159,24 @@ class PixelCNN(nn.Module):
         x = self.last_conv(x)
         out = self.out_layer(x)
         return out
+
+
+class AutoregressiveModel(GenAIModelBase):
+    torch_module_class = PixelCNN
+
+    def __init__(self, torch_module, trainer, sampler) -> None:
+        super().__init__(torch_module, trainer, sampler)
+
+    def train(self) -> None:
+        self.trainer.train()
+
+    def sample(self) -> None:
+        self.sampler.sample()
+
+    # TODO: Implement load method
+    def load(self, file_path):
+        pass
+
+    # TODO: Implement save method
+    def save(self, save_dir):
+        pass
