@@ -32,8 +32,8 @@ class GenAIModelFactory:
 
             module_config = asdict(self.config.model_config)
             module_config.pop("model_type")
-            
-            torch_module = AutoregressiveModel.torch_module_class(**self.config.model_config)
+
+            torch_module = AutoregressiveModel.torch_module_class(**module_config)
             trainer = AutoregressiveModelTrainer(MNISTDataset(self.config.data_config), self.config.train_config)
             sampler = None
             return AutoregressiveModel(torch_module, trainer, sampler)
