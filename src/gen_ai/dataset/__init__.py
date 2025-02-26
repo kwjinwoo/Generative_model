@@ -2,13 +2,11 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST
 from torchvision.transforms import Compose, ToTensor
 
-from gen_ai.configs.data_configs import DataConfig
-
 
 class MNISTDataset:
     """MNIST Dataset Class."""
 
-    def __init__(self, config: DataConfig, path: str = "./data") -> None:
+    def __init__(self, config, path: str = "./data") -> None:
         """MNISTLoader Constructor.
 
         Args:

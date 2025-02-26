@@ -3,14 +3,13 @@ from abc import ABC, abstractmethod
 import torch
 import torch.nn as nn
 
-from gen_ai.configs import TrainConfig
 from gen_ai.dataset import MNISTDataset
 
 
 class GenAITrainerBase(ABC):
     """Generative AI Trainer Base Class."""
 
-    def __init__(self, dataset: MNISTDataset, config: TrainConfig) -> None:
+    def __init__(self, dataset: MNISTDataset, config) -> None:
         """Initializes the model base class.
 
         Args:
