@@ -4,9 +4,6 @@ from gen_ai.configs import GenAIConfig
 
 
 @pytest.fixture
-def test_data_config():
-    return GenAIConfig(
-        data_config={"batch_size": 32, "num_workers": 4},
-        model_config={},
-        train_config={},
-    )
+def test_data_config(shared_datadir):
+    path = shared_datadir / "test.yaml"
+    return GenAIConfig(str(path)).data_config

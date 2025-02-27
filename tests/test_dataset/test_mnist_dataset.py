@@ -2,12 +2,12 @@ import pytest
 from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST
 
-from gen_ai.dataset import MNISTLoader
+from gen_ai.dataset import MNISTDataset
 
 
 @pytest.mark.skip(reason="Downloading MNIST dataset is slow.")
 def test_mnist_loader(test_data_config, tmpdir) -> None:
-    mnist_loader = MNISTLoader(config=test_data_config, path=tmpdir)
+    mnist_loader = MNISTDataset(config=test_data_config, path=tmpdir)
 
     assert isinstance(mnist_loader.dataset, MNIST)
     assert isinstance(mnist_loader.loader, DataLoader)
