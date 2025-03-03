@@ -1,3 +1,5 @@
+import os
+
 import torch
 import torch.nn as nn
 
@@ -176,6 +178,12 @@ class AutoregressiveModel(GenAIModelBase):
     def load(self, file_path):
         pass
 
-    # TODO: Implement save method
-    def save(self, save_dir):
-        pass
+    def save(self, save_dir: str):
+        """save trained model to save dir.
+
+        Args:
+            save_dir (str): svae directory.
+        """
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        torch.save(self.torch_module.state_dict(), os.path.join(save_dir, "autoregressive_model.pth"))
