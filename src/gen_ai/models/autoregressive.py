@@ -174,9 +174,11 @@ class AutoregressiveModel(GenAIModelBase):
     def sample(self) -> None:
         self.sampler.sample()
 
-    # TODO: Implement load method
     def load(self, file_path):
-        pass
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File {file_path} does not exist.")
+
+        self.torch_module.load_state_dict(torch.load(file_path))
 
     def save(self, save_dir: str):
         """save trained model to save dir.
