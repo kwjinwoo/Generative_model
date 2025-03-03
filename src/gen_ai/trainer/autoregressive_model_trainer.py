@@ -20,15 +20,16 @@ class AutoregressiveModelTrainer(GenAITrainerBase):
         self.criterion = nn.BCELoss()
 
         print("Training Start")
-        for epoch in range(self.config["num_epochs"]):
-            mean_loss = 0
-            pbar = tqdm(data_loader)
-            for x, _ in pbar:
-                x = x.to(self.device)
+        with torch.autograd.set_detect_anomaly(True):
+            for epoch in range(self.config["num_epochs"]):
+                mean_loss = 0
+                pbar = tqdm(data_loader)
+                for x, _ in pbar:
+                    x = x.to(self.device)
 
-                loss = self.one_step(model, x)
-                mean_loss += loss.item()
-            pbar.desc = f"EPOCH {epoch:>3d} loss: {mean_loss / len(data_loader):>6f}"
+                    loss = self.one_step(model, x)
+                    mean_loss += loss.item()
+                pbar.desc = f"EPOCH {epoch:>3d} loss: {mean_loss / len(data_loader):>6f}"
         pbar.close()
         print("Training Finished")
 

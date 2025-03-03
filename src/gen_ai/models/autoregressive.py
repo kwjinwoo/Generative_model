@@ -94,8 +94,7 @@ class MaskedConvResidualBlock(nn.Module):
             torch.Tensor: MaskedConvResidualBlock's output.
         """
         out = self.layers(x)
-        out += x
-        return out
+        return out + x
 
 
 class PixelCNN(nn.Module):
