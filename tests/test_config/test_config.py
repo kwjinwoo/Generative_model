@@ -1,6 +1,6 @@
 import pytest
 
-from gen_ai.configs.gen_ai_config import check_config_path, check_extension, check_path, load_yaml
+from gen_ai.configs.gen_ai_config import GenAIConfig, check_config_path, check_extension, check_path, load_yaml
 
 
 @pytest.mark.parametrize(
@@ -60,19 +60,25 @@ def test_load_yaml(datadir):
     config = load_yaml(path)
     assert isinstance(config, dict)
 
-    assert "model_type" in config
-    assert "module_config" in config
-    assert "data" in config
-    assert "train" in config
 
-    assert config["model_type"] == "autoregressive"
-    assert config["module_config"]["img_channel"] == 3
-    assert config["module_config"]["num_channels"] == 128
-    assert config["module_config"]["num_layers"] == 3
+def test_gen_ai_config(datadir):
+    path = datadir / "autoregressive_config.yaml"
 
-    assert config["data"]["batch_size"] == 64
-    assert config["data"]["num_workers"] == 4
+    config = GenAIConfig(str(path))
 
-    assert config["train"]["num_epochs"] == 10
-    assert config["train"]["learning_rate"] == 0.001
-    assert config["train"]["optimizer"] == "adam"
+    assert config.model_type == "autoregressive"
+
+    data_config = config.data_config
+    module_config = config.module_config
+    train_config = config.train_config
+
+    assert module_config["img_channel"] == 3
+    assert module_config["num_channels"] == 128
+    assert module_config["num_layers"] == 3
+
+    assert data_config["batch_size"] == 64
+    assert data_config["num_workers"] == 4
+
+    assert train_config["num_epochs"] == 10
+    assert train_config["learning_rate"] == 0.001
+    assert train_config["optimizer"] == "adam"

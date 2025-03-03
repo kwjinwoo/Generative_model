@@ -1,4 +1,4 @@
-model_typ: "autoregressive"
+model_type: "autoregressive"
 module_config:
   img_channel: 1
   num_channels: 128

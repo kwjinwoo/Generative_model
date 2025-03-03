@@ -77,7 +77,7 @@ class GenAIConfig:
         Returns:
             str: model type.
         """
-        model_type = self.config_file["model"].get("model_type")
+        model_type = self.config_file.get("model_type")
         if model_type is None:
             raise KeyError("Model Type is not defined in Config File.")
 
