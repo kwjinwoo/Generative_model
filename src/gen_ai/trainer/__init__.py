@@ -70,13 +70,5 @@ class GenAITrainerBase(ABC):
         """Train the model."""
         pass
 
-    def save(self, save_path: str) -> None:
-        """Save the model.
-
-        Args:
-            save_dir (str): directory to save the model.
-        """
-        torch.save(self.model.state_dict(), save_path)
-
 
 __all__ = ["GenAITrainerBase"]

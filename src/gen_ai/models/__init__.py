@@ -2,13 +2,14 @@ from abc import ABC, abstractmethod
 
 import torch.nn as nn
 
+from gen_ai.dataset import MNISTDataset
 from gen_ai.trainer import GenAITrainerBase
 
 
 class GenAIModelBase(ABC):
     """Generative AI model base class."""
 
-    def __init__(self, torch_module: nn.Module, trainer: GenAITrainerBase, sampler) -> None:
+    def __init__(self, torch_module: nn.Module, trainer: GenAITrainerBase, sampler, dataset: MNISTDataset) -> None:
         """Initializes the model base class.
 
         Args:
@@ -19,6 +20,7 @@ class GenAIModelBase(ABC):
         self.torch_module = torch_module
         self.trainer = trainer
         self.sampler = sampler
+        self.dataset = dataset
 
     @abstractmethod
     def train(self) -> None:

@@ -164,11 +164,11 @@ class PixelCNN(nn.Module):
 class AutoregressiveModel(GenAIModelBase):
     torch_module_class = PixelCNN
 
-    def __init__(self, torch_module, trainer, sampler) -> None:
-        super().__init__(torch_module, trainer, sampler)
+    def __init__(self, torch_module, trainer, sampler, dataset) -> None:
+        super().__init__(torch_module, trainer, sampler, dataset)
 
     def train(self) -> None:
-        self.trainer.train(self.torch_module)
+        self.trainer.train(self.torch_module, self.dataset.loader)
 
     def sample(self) -> None:
         self.sampler.sample()
