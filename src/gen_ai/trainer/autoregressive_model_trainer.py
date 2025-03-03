@@ -28,8 +28,8 @@ class AutoregressiveModelTrainer(GenAITrainerBase):
 
                 loss = self.one_step(model, x)
                 mean_loss += loss.item()
-            pbar.desc = f"EPOCH {epoch:>3d} loss: {mean_loss / len(data_loader):>6f}"
-        pbar.close()
+            print(f"EPOCH {epoch:>3d} loss: {mean_loss / len(data_loader):>6f}")
+            pbar.close()
         print("Training Finished")
 
     def one_step(self, model: nn.Module, x: torch.Tensor) -> torch.Tensor:
