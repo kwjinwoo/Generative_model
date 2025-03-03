@@ -30,8 +30,8 @@ class GenAIModelFactory:
 
             torch_module = AutoregressiveModel.torch_module_class(**self.config.module_config)
             dataset = MNISTDataset(self.config.data_config)
-            trainer = AutoregressiveModelTrainer(dataset, self.config.train_config)
+            trainer = AutoregressiveModelTrainer(self.config.train_config)
             sampler = None
-            return AutoregressiveModel(torch_module, trainer, sampler)
+            return AutoregressiveModel(torch_module, trainer, sampler, dataset)
         else:
             raise ValueError(f"Unsupported model type: {self.model_type}")
