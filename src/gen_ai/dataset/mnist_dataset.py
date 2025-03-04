@@ -2,7 +2,7 @@ from typing import Optional
 
 from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST
-from torchvision.transforms import Compose, ToTensor
+from torchvision.transforms import Compose, Lambda, ToTensor
 
 
 class MNISTDataset:
@@ -38,7 +38,7 @@ class MNISTDataset:
         Returns:
             Compose: mnist transform.
         """
-        return Compose([ToTensor()])
+        return Compose([ToTensor(), Lambda(lambda x: (x > 0.5).float())])
 
     def _get_dataset(self) -> MNIST:
         """get MNIST dataset.
