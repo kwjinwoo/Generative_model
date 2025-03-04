@@ -154,6 +154,7 @@ cython_debug/
 # experiment ipynb
 experiment.ipynb
 /AutoRegressive/data/
+/data
 /saved_models
 .idea/Generative_model.iml
 .idea/misc.xml
