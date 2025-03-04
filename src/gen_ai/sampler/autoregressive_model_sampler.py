@@ -1,3 +1,4 @@
+import math
 import os
 
 import matplotlib.pyplot as plt
@@ -25,8 +26,11 @@ class AutoRegressiveModelSampler:
                     generated_pixel = torch.bernoulli(out[:, :, h, w])
                     generated[:, :, h, w] = generated_pixel
 
+        num_cols = math.sqrt(num_samples)
+        if not num_cols.is_integer():
+            raise ValueError("num_samples must be a square number.")
         for i in range(num_samples):
-            plt.subplot(num_samples // 2, num_samples // 2, i + 1)
+            plt.subplot(int(num_cols), int(num_cols), i + 1)
             plt.imshow(generated[i].permute(1, 2, 0).cpu().numpy(), cmap="gray")
             plt.axis("off")
         plt.suptitle("PixelCNN generated samples")

@@ -28,7 +28,7 @@ class GenAIModelBase(ABC):
         pass
 
     @abstractmethod
-    def sample(self) -> None:
+    def sample(self, save_dir: str, num_samples: int) -> None:
         """Sample from the model."""
         pass
 

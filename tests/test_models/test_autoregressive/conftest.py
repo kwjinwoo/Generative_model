@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 
+from gen_ai.sampler.autoregressive_model_sampler import AutoRegressiveModelSampler
 from gen_ai.trainer.autoregressive_model_trainer import AutoregressiveModelTrainer
 
 
@@ -47,5 +48,4 @@ def test_trainer():
 
 @pytest.fixture
 def test_sampler():
-    # TODO: Implement Sampler.
-    return None
+    return AutoRegressiveModelSampler()

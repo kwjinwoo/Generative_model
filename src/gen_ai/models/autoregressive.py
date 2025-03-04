@@ -171,8 +171,8 @@ class AutoregressiveModel(GenAIModelBase):
     def train(self) -> None:
         self.trainer.train(self.torch_module, self.dataset.loader)
 
-    def sample(self, save_dir: str) -> None:
-        self.sampler.sample(self.torch_module, save_dir)
+    def sample(self, save_dir: str, num_samples: int) -> None:
+        self.sampler.sample(self.torch_module, save_dir, num_samples)
 
     def load(self, file_path):
         if not os.path.exists(file_path):
