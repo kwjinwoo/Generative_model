@@ -18,7 +18,7 @@ def test_masked_conv_2d(mask_type, answer_mask):
 
 
 def test_masked_conv_residual_block():
-    block = MaskedConvResidualBlock(3)
+    block = MaskedConvResidualBlock(3, 3)
 
     tmp_input = torch.randn(1, 3, 10, 10)
 

@@ -54,32 +54,16 @@ class MaskedConvResidualBlock(nn.Module):
         in_channels (int): the number of input channels.
     """
 
-    def __init__(self, in_channels: int) -> None:
+    def __init__(self, in_channels: int, kernel_size: int) -> None:
         super().__init__()
 
         self.layers = nn.Sequential(
-            nn.Conv2d(
-                in_channels=in_channels,
-                out_channels=in_channels // 2,
-                kernel_size=1,
-                bias=False,
-            ),
-            nn.BatchNorm2d(in_channels // 2),
-            nn.ReLU(),
             MaskedConv2D(
                 mask_type="B",
-                in_channels=in_channels // 2,
-                out_channels=in_channels // 2,
-                kernel_size=3,
-                padding=1,
-                bias=False,
-            ),
-            nn.BatchNorm2d(in_channels // 2),
-            nn.ReLU(),
-            nn.Conv2d(
-                in_channels=in_channels // 2,
+                in_channels=in_channels,
                 out_channels=in_channels,
-                kernel_size=1,
+                kernel_size=kernel_size,
+                padding=kernel_size // 2,
                 bias=False,
             ),
             nn.BatchNorm2d(in_channels),
@@ -122,24 +106,8 @@ class PixelCNN(nn.Module):
             nn.BatchNorm2d(num_channels),
             nn.ReLU(),
         )
-        self.layers = nn.Sequential(*[MaskedConvResidualBlock(in_channels=num_channels) for _ in range(num_layers)])
-        self.last_conv = nn.Sequential(
-            MaskedConv2D(
-                mask_type="B",
-                in_channels=num_channels,
-                out_channels=num_channels,
-                kernel_size=1,
-                bias=False,
-            ),
-            nn.ReLU(),
-            MaskedConv2D(
-                mask_type="B",
-                in_channels=num_channels,
-                out_channels=num_channels,
-                kernel_size=1,
-                bias=False,
-            ),
-            nn.ReLU(),
+        self.layers = nn.Sequential(
+            *[MaskedConvResidualBlock(in_channels=num_channels, kernel_size=7) for _ in range(num_layers)]
         )
         self.out_layer = nn.Sequential(
             nn.Conv2d(in_channels=num_channels, out_channels=1, kernel_size=1, bias=False),
@@ -157,7 +125,6 @@ class PixelCNN(nn.Module):
         """
         x = self.input_layer(inputs)
         x = self.layers(x)
-        x = self.last_conv(x)
         out = self.out_layer(x)
         return out
 
