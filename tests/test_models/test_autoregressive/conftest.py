@@ -35,7 +35,7 @@ def test_dataset():
 
     class TestDatasetClass:
         def __init__(self, dataset):
-            self.loader = DataLoader(dataset, batch_size=2)
+            self.train_loader = DataLoader(dataset, batch_size=2)
 
     return TestDatasetClass(TestDataset())
 

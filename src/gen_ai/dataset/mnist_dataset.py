@@ -17,20 +17,33 @@ class MNISTDataset:
         """
         self.config = config
         self.path = path
-        self.dataset = self._get_dataset()
+        self.train_dataset = self._get_dataset(train=True)
+        self.valid_dataset = self._get_dataset(train=False)
 
-        self._loader = self._make_loader()
+        self._train_loader = self._make_loader(train=True)
+        self._valid_loader = self._make_loader(train=False)
 
     @property
-    def loader(self) -> DataLoader:
-        """loader property.
+    def train_loader(self) -> DataLoader:
+        """train loader property.
 
         Returns:
             DataLoader: loader.
         """
-        if self._loader is None:
-            self._loader = self._make_loader()
-        return self._loader
+        if self._train_loader is None:
+            self._train_loader = self._make_loader(train=True)
+        return self._train_loader
+
+    @property
+    def valid_loader(self) -> DataLoader:
+        """valid loader property.
+
+        Returns:
+            DataLoader: loader.
+        """
+        if self._valid_loader is None:
+            self._valid_loader = self._make_loader(train=False)
+        return self._valid_loader
 
     def _make_mnist_transform(self) -> Compose:
         """make mnist transform.
@@ -40,27 +53,32 @@ class MNISTDataset:
         """
         return Compose([ToTensor(), Lambda(lambda x: (x > 0.5).float())])
 
-    def _get_dataset(self) -> MNIST:
+    def _get_dataset(self, train: bool) -> MNIST:
         """get MNIST dataset.
 
+        Args:
+            train (bool): train or test.
         Returns:
             MNIST: MNIST dataset.
         """
         return MNIST(
             root=self.path,
-            train=True,
+            train=train,
             download=True,
             transform=self._make_mnist_transform(),
         )
 
-    def _make_loader(self) -> DataLoader:
+    def _make_loader(self, train: bool) -> DataLoader:
         """make loader.
+
+        Args:
+            train (bool): train or test.
 
         Returns:
             DataLoader: loader.
         """
         return DataLoader(
-            dataset=self.dataset,
+            dataset=self.train_dataset if train else self.valid_dataset,
             batch_size=self.config["batch_size"],
             shuffle=True,
             num_workers=self.config["num_workers"],

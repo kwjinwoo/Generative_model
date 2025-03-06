@@ -1,9 +1,17 @@
+from __future__ import annotations
+
 import os
+import typing
 
 import torch
 import torch.nn as nn
 
 from gen_ai.models import GenAIModelBase
+
+if typing.TYPE_CHECKING:
+    from gen_ai.dataset import MNISTDataset
+    from gen_ai.sampler.autoregressive_model_sampler import AutoRegressiveModelSampler
+    from gen_ai.trainer.autoregressive_model_trainer import AutoregressiveModelTrainer
 
 
 class MaskedConv2D(nn.Conv2d):
@@ -132,11 +140,17 @@ class PixelCNN(nn.Module):
 class AutoregressiveModel(GenAIModelBase):
     torch_module_class = PixelCNN
 
-    def __init__(self, torch_module, trainer, sampler, dataset) -> None:
+    def __init__(
+        self,
+        torch_module: PixelCNN,
+        trainer: AutoregressiveModelTrainer,
+        sampler: AutoRegressiveModelSampler,
+        dataset: MNISTDataset,
+    ) -> None:
         super().__init__(torch_module, trainer, sampler, dataset)
 
     def train(self) -> None:
-        self.trainer.train(self.torch_module, self.dataset.loader)
+        self.trainer.train(self.torch_module, self.dataset.train_loader)
 
     def sample(self, save_dir: str, num_samples: int) -> None:
         self.sampler.sample(self.torch_module, save_dir, num_samples)
@@ -155,4 +169,7 @@ class AutoregressiveModel(GenAIModelBase):
         """
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
-        torch.save(self.torch_module.state_dict(), os.path.join(save_dir, "autoregressive_model.pth"))
+        torch.save(
+            self.torch_module.state_dict(),
+            os.path.join(save_dir, "autoregressive_model.pth"),
+        )
