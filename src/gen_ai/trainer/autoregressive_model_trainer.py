@@ -19,7 +19,7 @@ class AutoregressiveModelTrainer(GenAITrainerBase):
         self.optimizer = self._get_optimizer(model)
         self.criterion = nn.BCELoss()
 
-        print("Training Start")
+        print("AutoRegressive Model Training Start")
         for epoch in range(self.config["num_epochs"]):
             mean_loss = 0
             pbar = tqdm(data_loader)
@@ -30,7 +30,7 @@ class AutoregressiveModelTrainer(GenAITrainerBase):
                 mean_loss += loss.item()
             print(f"EPOCH {epoch:>3d} loss: {mean_loss / len(data_loader):>6f}")
             pbar.close()
-        print("Training Finished")
+        print("AutoRegressive Model Training Finished")
 
     def one_step(self, model: nn.Module, x: torch.Tensor) -> torch.Tensor:
         self.optimizer.zero_grad()

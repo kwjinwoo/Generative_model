@@ -23,7 +23,7 @@ class AutoRegressiveModelSampler:
     def full_sample(self, model: nn.Module, saved_dir: str, num_samples: int) -> None:
         generated = torch.zeros((num_samples, 1, 28, 28), dtype=torch.float32)
         generated = generated.to(self.device)
-        print("Sampling Start.")
+        print("AutoRegressive Full Sampling Start.")
         with torch.no_grad():
             for h in range(28):
                 for w in range(28):
@@ -40,11 +40,13 @@ class AutoRegressiveModelSampler:
             plt.axis("off")
         plt.suptitle("PixelCNN generated samples")
         plt.savefig(os.path.join(saved_dir, "pixelCNN_generate.png"))
+        print(f"AutoRegressive Full Sampling Finished. saved at {saved_dir}")
 
     def half_sample(self, model: nn.Module, valid_dataset: Dataset, saved_dir: str, num_samples: int) -> None:
         valid_loader = DataLoader(valid_dataset, batch_size=num_samples)
         generated = next(iter(valid_loader))[0].to(self.device)
         generated[:, :, 14:, :] = 0
+        print("AutoRegressive Half Sampling Start.")
         with torch.no_grad():
             for h in range(14, 28):
                 for w in range(28):
@@ -60,3 +62,4 @@ class AutoRegressiveModelSampler:
             plt.axis("off")
         plt.suptitle("PixelCNN half generated samples")
         plt.savefig(os.path.join(saved_dir, "pixelCNN_half_generate.png"))
+        print(f"AutoRegressive Half Sampling Finished. saved at {saved_dir}")
