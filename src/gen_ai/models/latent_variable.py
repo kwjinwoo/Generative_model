@@ -1,8 +1,8 @@
 import os
 
 import torch
-import torch.functional as F
 import torch.nn as nn
+import torch.nn.functional as F
 
 from gen_ai.models import GenAIModelBase
 
@@ -32,7 +32,7 @@ class Encoder(nn.Module):
             ),
             nn.ReLU(),
         )
-        self.linear = nn.Linear(in_features=7 * 7 * latent_dim, out_features=latent_dim + latent_dim)
+        self.linear = nn.Linear(in_features=7 * 7 * 64, out_features=latent_dim + latent_dim)
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         x = self.layers(inputs)
@@ -129,10 +129,9 @@ class LatentVariableModel(GenAIModelBase):
     def __init__(self, torch_module: CVAE, trainer, sampler, dataset):
         super().__init__(torch_module, trainer, sampler, dataset)
 
-    # TODO: Need to Implement LatentvariableModelTraniner and LatentvariableModelTrainer must have criterion property.
     def train(self):
         self.trainer.criterion = elbo_loss
-        return self.trainer.train(self.torch_module, self.dataset.train_dataset)
+        return self.trainer.train(self.torch_module, self.dataset.train_loader)
 
     # TODO: Need to Implement LatentvariableModelSampler
     def sample(self, save_dir: str, num_samples: int):
