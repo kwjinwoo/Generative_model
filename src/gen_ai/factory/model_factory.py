@@ -36,13 +36,12 @@ class GenAIModelFactory:
             return AutoregressiveModel(torch_module, trainer, sampler, dataset)
         elif self.config.model_type == ModelType.latent_variable:
             from gen_ai.models.latent_variable import LatentVariableModel
-
-            # TODO: Need to Implement Sampler
+            from gen_ai.sampler.latent_variable_model_sampler import LatentVariableModelSampler
             from gen_ai.trainer.latent_variable_model_trainer import LatentVariableModelTrainer
 
             torch_module = LatentVariableModel.torch_module_class(**self.config.module_config)
             trainer = LatentVariableModelTrainer(self.config.train_config)
-            sampler = None
+            sampler = LatentVariableModelSampler()
             return LatentVariableModel(torch_module, trainer, sampler, dataset)
 
         else:

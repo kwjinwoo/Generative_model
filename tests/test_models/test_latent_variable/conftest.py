@@ -3,14 +3,29 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 
+from gen_ai.sampler.latent_variable_model_sampler import LatentVariableModelSampler
 from gen_ai.trainer.latent_variable_model_trainer import LatentVariableModelTrainer
 
 
 @pytest.fixture
 def test_model():
+    class TestDecoder(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.latent_dim = 10
+            self.linear = nn.Linear(in_features=10, out_features=28 * 28)
+            self.sigmoid = nn.Sigmoid()
+
+        def forward(self, x):
+            out = self.linear(x)
+            out = self.sigmoid(out)
+            return out.view(-1, 1, 28, 28)
+
     class TestModel(nn.Module):
         def __init__(self):
             super(TestModel, self).__init__()
+            self.latent_dim = 10
+            self.decoder = TestDecoder()
             self.conv = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=3, padding=1)
             self.sigmoid = nn.Sigmoid()
 
@@ -48,4 +63,4 @@ def test_trainer():
 
 @pytest.fixture
 def test_sampler():
-    return None
+    return LatentVariableModelSampler()

@@ -4,14 +4,13 @@ import os
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset
 
 
 class LatentVariableModelSampler:
     def __init__(self) -> None:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    def sample(self, model: nn.Module, dataset: Dataset, saved_dir: str, num_samples: int) -> None:
+    def sample(self, model: nn.Module, saved_dir: str, num_samples: int) -> None:
         if os.path.exists(saved_dir) is False:
             os.makedirs(saved_dir)
         model.eval()

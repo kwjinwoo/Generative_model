@@ -134,9 +134,7 @@ class LatentVariableModel(GenAIModelBase):
         self.trainer.criterion = elbo_loss
         return self.trainer.train(self.torch_module, self.dataset.train_loader)
 
-    # TODO: Need to Implement LatentvariableModelSampler
     def sample(self, save_dir: str, num_samples: int):
-        pass
         self.sampler.sample(self.torch_module, save_dir, num_samples)
 
     def load(self, file_path):
