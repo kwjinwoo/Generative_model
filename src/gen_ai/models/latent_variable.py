@@ -41,12 +41,12 @@ class Encoder(nn.Module):
             ),
             nn.ReLU(),
         )
-        self.mu_linear = nn.Linear(in_features=7 * 7 * 128, out_features=latent_dim)
-        self.log_var_linear = nn.Linear(in_features=7 * 7 * 128, out_features=latent_dim)
+        self.mu_linear = nn.Linear(in_features=3 * 3 * 128, out_features=latent_dim)
+        self.log_var_linear = nn.Linear(in_features=3 * 3 * 128, out_features=latent_dim)
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         x = self.layers(inputs)
-        latent_variable = x.view(-1, 7 * 7 * 64)
+        latent_variable = x.view(-1, 3 * 3 * 128)
         mean = self.mu_linear(latent_variable)
         log_var = self.log_var_linear(latent_variable)
         return mean, log_var
