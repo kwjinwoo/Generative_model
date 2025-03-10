@@ -62,7 +62,7 @@ class Decoder(nn.Module):
             nn.ConvTranspose2d(
                 in_channels=128,
                 out_channels=64,
-                kernel_size=4,
+                kernel_size=3,
                 padding=1,
                 output_padding=1,
                 stride=2,
@@ -72,7 +72,7 @@ class Decoder(nn.Module):
             nn.ConvTranspose2d(
                 in_channels=64,
                 out_channels=32,
-                kernel_size=4,
+                kernel_size=3,
                 padding=1,
                 output_padding=1,
                 stride=2,
