@@ -16,7 +16,7 @@ class Encoder(nn.Module):
             nn.Conv2d(
                 in_channels=input_channel,
                 out_channels=32,
-                kernel_size=3,
+                kernel_size=4,
                 stride=2,
                 padding=1,
                 bias=False,
@@ -25,20 +25,31 @@ class Encoder(nn.Module):
             nn.Conv2d(
                 in_channels=32,
                 out_channels=64,
-                kernel_size=3,
+                kernel_size=4,
+                stride=2,
+                padding=1,
+                bias=False,
+            ),
+            nn.ReLU(),
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=128,
+                kernel_size=4,
                 stride=2,
                 padding=1,
                 bias=False,
             ),
             nn.ReLU(),
         )
-        self.linear = nn.Linear(in_features=7 * 7 * 64, out_features=latent_dim + latent_dim)
+        self.mu_linear = nn.Linear(in_features=7 * 7 * 128, out_features=latent_dim)
+        self.log_var_linear = nn.Linear(in_features=7 * 7 * 128, out_features=latent_dim)
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         x = self.layers(inputs)
         latent_variable = x.view(-1, 7 * 7 * 64)
-        latent_variable = self.linear(latent_variable)
-        return latent_variable
+        mean = self.mu_linear(latent_variable)
+        log_var = self.log_var_linear(latent_variable)
+        return mean, log_var
 
 
 class Decoder(nn.Module):
@@ -46,14 +57,13 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
 
         self.latent_dim = latent_dim
-        self.linear = nn.Linear(in_features=latent_dim, out_features=7 * 7 * 32)
+        self.linear = nn.Sequential(nn.Linear(in_features=latent_dim, out_features=3 * 3 * 128), nn.ReLU())
         self.layers = nn.Sequential(
             nn.ConvTranspose2d(
-                in_channels=32,
+                in_channels=128,
                 out_channels=64,
-                kernel_size=3,
+                kernel_size=4,
                 padding=1,
-                output_padding=1,
                 stride=2,
                 bias=False,
             ),
@@ -61,9 +71,8 @@ class Decoder(nn.Module):
             nn.ConvTranspose2d(
                 in_channels=64,
                 out_channels=32,
-                kernel_size=3,
+                kernel_size=4,
                 padding=1,
-                output_padding=1,
                 stride=2,
                 bias=False,
             ),
@@ -71,7 +80,7 @@ class Decoder(nn.Module):
             nn.ConvTranspose2d(
                 in_channels=32,
                 out_channels=output_channel,
-                kernel_size=3,
+                kernel_size=4,
                 padding=1,
                 stride=1,
                 bias=False,
@@ -81,14 +90,14 @@ class Decoder(nn.Module):
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         x = self.linear(inputs)
-        x = x.view(-1, 32, 7, 7)
+        x = x.view(-1, 128, 3, 3)
         out = self.layers(x)
         return out
 
 
-class CVAE(nn.Module):
+class ConvolutionalVAE(nn.Module):
     def __init__(self, img_channel: int, latent_dim: int) -> None:
-        super(CVAE, self).__init__()
+        super().__init__()
         self.latent_dim = latent_dim
         self.encoder = Encoder(img_channel, latent_dim)
         self.decoder = Decoder(latent_dim, img_channel)
@@ -98,7 +107,7 @@ class CVAE(nn.Module):
         return eps * torch.exp(log_var * 0.5) + mean
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
-        mean, log_var = torch.chunk(self.encoder(inputs), 2, dim=1)
+        mean, log_var = self.encoder(inputs)
         z = self.reparameterizing(mean, log_var)
         out = self.decoder(z)
         return out, mean, log_var
@@ -125,9 +134,9 @@ def elbo_loss(x: torch.Tensor, x_hat: torch.Tensor, mean: torch.Tensor, log_var:
 
 
 class LatentVariableModel(GenAIModelBase):
-    torch_module_class = CVAE
+    torch_module_class = ConvolutionalVAE
 
-    def __init__(self, torch_module: CVAE, trainer, sampler, dataset):
+    def __init__(self, torch_module: ConvolutionalVAE, trainer, sampler, dataset):
         super().__init__(torch_module, trainer, sampler, dataset)
 
     def train(self):
