@@ -82,7 +82,7 @@ class Decoder(nn.Module):
                 out_channels=output_channel,
                 kernel_size=4,
                 padding=1,
-                stride=1,
+                stride=2,
                 bias=False,
             ),
             nn.Sigmoid(),
