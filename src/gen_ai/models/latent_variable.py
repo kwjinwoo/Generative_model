@@ -89,6 +89,7 @@ class Decoder(nn.Module):
 class CVAE(nn.Module):
     def __init__(self, img_channel: int, latent_dim: int) -> None:
         super(CVAE, self).__init__()
+        self.latent_dim = latent_dim
         self.encoder = Encoder(img_channel, latent_dim)
         self.decoder = Decoder(latent_dim, img_channel)
 

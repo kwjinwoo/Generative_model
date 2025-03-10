@@ -31,3 +31,33 @@ def test_dataset():
             return self.data[idx], 0
 
     return TestDataset()
+
+
+@pytest.fixture
+def test_latent_model():
+    class TestDecoder(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.latent_dim = 10
+            self.linear = nn.Linear(in_features=10, out_features=28 * 28)
+            self.sigmoid = nn.Sigmoid()
+
+        def forward(self, x):
+            out = self.linear(x)
+            out = self.sigmoid(out)
+            return out.view(-1, 1, 28, 28)
+
+    class TestLatentModel(nn.Module):
+        def __init__(self):
+            self.latent_dim = 10
+            super().__init__()
+            self.encoder = nn.Linear(28 * 28, 10)
+            self.decoder = TestDecoder()
+
+        def forward(self, x):
+            x = x.view(-1, 28 * 28)
+            x = self.encoder(x)
+            x = self.decoder(x)
+            return x
+
+    return TestLatentModel()
