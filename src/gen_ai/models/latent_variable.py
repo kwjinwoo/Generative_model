@@ -48,43 +48,25 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
 
         self.latent_dim = latent_dim
-        self.linear = nn.Sequential(nn.Linear(in_features=latent_dim, out_features=7 * 7 * 32), nn.ReLU())
+        self.linear = nn.Sequential(nn.Linear(in_features=latent_dim, out_features=7 * 7 * 64), nn.ReLU())
         self.layers = nn.Sequential(
-            nn.ConvTranspose2d(
-                in_channels=32,
-                out_channels=64,
-                kernel_size=3,
-                padding=1,
-                output_padding=1,
-                stride=2,
-                bias=False,
-            ),
+            nn.Conv2d(in_channels=64, out_channels=32, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.ConvTranspose2d(
-                in_channels=64,
-                out_channels=32,
-                kernel_size=3,
-                padding=1,
-                output_padding=1,
-                stride=2,
-                bias=False,
-            ),
-            nn.ConvTranspose2d(
-                in_channels=32,
-                out_channels=output_channel,
-                kernel_size=3,
-                padding=1,
-                stride=1,
-                bias=False,
-            ),
+            nn.Upsample(scale_factor=2),
+            nn.Conv2d(in_channels=32, out_channels=output_channel, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.Upsample(scale_factor=2),
+        )
+        self.output_layer = nn.Sequential(
+            nn.Conv2d(in_channels=output_channel, out_channels=output_channel, kernel_size=1),
             nn.Sigmoid(),
         )
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         x = self.linear(inputs)
-        x = x.view(-1, 32, 7, 7)
-        out = self.layers(x)
-        return out
+        x = x.view(-1, 64, 7, 7)
+        x = self.layers(x)
+        return self.output_layer(x)
 
 
 class ConvolutionalVAE(nn.Module):
