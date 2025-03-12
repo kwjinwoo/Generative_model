@@ -7,40 +7,68 @@ import torch.nn.functional as F
 from gen_ai.models import GenAIModelBase
 
 
+class DownsampleLayer(nn.Module):
+    def __init__(self, in_channels: int, out_channels: int) -> None:
+        super().__init__()
+
+        self.layer = nn.Sequential(
+            nn.Conv2d(
+                in_channels,
+                out_channels,
+                kernel_size=3,
+                stride=2,
+                padding=1,
+                bias=False,
+            ),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.layer(x)
+
+
 class Encoder(nn.Module):
     def __init__(self, input_channel: int, latent_dim: int) -> None:
         super(Encoder, self).__init__()
 
         self.latent_dim = latent_dim
         self.layers = nn.Sequential(
-            nn.Conv2d(
-                in_channels=input_channel,
-                out_channels=32,
-                kernel_size=3,
-                stride=2,
-                padding=1,
-                bias=False,
-            ),
-            nn.ReLU(),
-            nn.Conv2d(
-                in_channels=32,
-                out_channels=64,
-                kernel_size=3,
-                stride=2,
-                padding=1,
-                bias=False,
-            ),
-            nn.ReLU(),
+            DownsampleLayer(input_channel, 16),
+            DownsampleLayer(16, 32),
+            DownsampleLayer(32, 64),
         )
-        self.mu_linear = nn.Linear(in_features=7 * 7 * 64, out_features=latent_dim)
-        self.log_var_linear = nn.Linear(in_features=7 * 7 * 64, out_features=latent_dim)
+        self.mu_linear = nn.Linear(in_features=4 * 4 * 64, out_features=latent_dim)
+        self.log_var_linear = nn.Linear(in_features=4 * 4 * 64, out_features=latent_dim)
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         x = self.layers(inputs)
-        latent_variable = x.view(-1, 7 * 7 * 64)
+        latent_variable = x.view(-1, 4 * 4 * 64)
         mean = self.mu_linear(latent_variable)
         log_var = self.log_var_linear(latent_variable)
         return mean, log_var
+
+
+class UpsampleLayer(nn.Module):
+    def __init__(self, in_channels: int, out_channels: int, output_padding: int = 1) -> None:
+        super().__init__()
+
+        self.layer = nn.Sequential(
+            nn.ConvTranspose2d(
+                in_channels,
+                out_channels,
+                kernel_size=3,
+                stride=2,
+                padding=1,
+                output_padding=output_padding,
+                bias=False,
+            ),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.layer(x)
 
 
 class Decoder(nn.Module):
@@ -48,23 +76,25 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
 
         self.latent_dim = latent_dim
-        self.linear = nn.Sequential(nn.Linear(in_features=latent_dim, out_features=7 * 7 * 64), nn.ReLU())
+        self.linear = nn.Sequential(nn.Linear(in_features=latent_dim, out_features=4 * 4 * 64), nn.ReLU())
         self.layers = nn.Sequential(
-            nn.Conv2d(in_channels=64, out_channels=32, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.Upsample(scale_factor=2),
-            nn.Conv2d(in_channels=32, out_channels=output_channel, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.Upsample(scale_factor=2),
+            UpsampleLayer(64, 32, output_padding=0),
+            UpsampleLayer(32, 16),
+            UpsampleLayer(16, output_channel),
         )
         self.output_layer = nn.Sequential(
-            nn.Conv2d(in_channels=output_channel, out_channels=output_channel, kernel_size=1),
+            nn.Conv2d(
+                in_channels=output_channel,
+                out_channels=output_channel,
+                kernel_size=1,
+                bias=False,
+            ),
             nn.Sigmoid(),
         )
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         x = self.linear(inputs)
-        x = x.view(-1, 64, 7, 7)
+        x = x.view(-1, 64, 4, 4)
         x = self.layers(x)
         return self.output_layer(x)
 
