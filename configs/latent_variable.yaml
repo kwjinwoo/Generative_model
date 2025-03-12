@@ -1,11 +1,11 @@
 model_type: "latent_variable"
 module_config:
   img_channel: 1
-  latent_dim: 10
+  latent_dim: 2
 data:
   batch_size: 128
   num_workers: 4
 train:
   num_epochs: 20
-  learning_rate: 0.001
+  learning_rate: 0.01
   optimizer: "adam"

@@ -36,13 +36,12 @@ class Encoder(nn.Module):
             DownsampleLayer(input_channel, 32),
             DownsampleLayer(32, 64),
         )
-        self.linear = nn.Sequential(nn.Linear(in_features=7 * 7 * 64, out_features=128), nn.ReLU())
-        self.mu_linear = nn.Linear(in_features=128, out_features=latent_dim)
-        self.log_var_linear = nn.Linear(in_features=128, out_features=latent_dim)
+        self.mu_linear = nn.Linear(in_features=7 * 7 * 64, out_features=latent_dim)
+        self.log_var_linear = nn.Linear(in_features=7 * 7 * 64, out_features=latent_dim)
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         x = self.layers(inputs)
-        x = self.linear(x.view(-1, 7 * 7 * 64))
+        x = x.view(-1, 7 * 7 * 64)
         mean = self.mu_linear(x)
         log_var = self.log_var_linear(x)
         return mean, log_var
@@ -56,7 +55,7 @@ class UpsampleLayer(nn.Module):
             nn.ConvTranspose2d(
                 in_channels,
                 out_channels,
-                kernel_size=3,
+                kernel_size=4,
                 stride=2,
                 padding=1,
                 output_padding=output_padding,
@@ -75,14 +74,12 @@ class Decoder(nn.Module):
 
         self.latent_dim = latent_dim
         self.linear = nn.Sequential(
-            nn.Linear(in_features=latent_dim, out_features=128),
-            nn.ReLU(),
-            nn.Linear(in_features=128, out_features=7 * 7 * 64),
+            nn.Linear(in_features=latent_dim, out_features=7 * 7 * 64),
             nn.ReLU(),
         )
         self.layers = nn.Sequential(
-            UpsampleLayer(64, 32, output_padding=1),
-            UpsampleLayer(32, output_channel),
+            UpsampleLayer(64, 32, output_padding=0),
+            UpsampleLayer(32, output_channel, output_padding=0),
         )
         self.output_layer = nn.Sigmoid()
 
