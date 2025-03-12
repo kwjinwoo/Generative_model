@@ -22,7 +22,7 @@ class LatentVariableModelSampler:
             eps = torch.randn((num_samples, latent_dim), device=self.device)
 
             generated = model.decoder(eps)
-            # generated = torch.bernoulli(generated)
+            generated = torch.bernoulli(generated)
 
         num_cols = math.sqrt(num_samples)
         if not num_cols.is_integer():

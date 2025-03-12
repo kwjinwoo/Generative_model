@@ -20,7 +20,6 @@ class DownsampleLayer(nn.Module):
                 padding=1,
                 bias=False,
             ),
-            nn.BatchNorm2d(out_channels),
             nn.ReLU(),
         )
 
@@ -34,18 +33,18 @@ class Encoder(nn.Module):
 
         self.latent_dim = latent_dim
         self.layers = nn.Sequential(
-            DownsampleLayer(input_channel, 16),
-            DownsampleLayer(16, 32),
+            DownsampleLayer(input_channel, 32),
             DownsampleLayer(32, 64),
         )
-        self.mu_linear = nn.Linear(in_features=4 * 4 * 64, out_features=latent_dim)
-        self.log_var_linear = nn.Linear(in_features=4 * 4 * 64, out_features=latent_dim)
+        self.linear = nn.Sequential(nn.Linear(in_features=7 * 7 * 64, out_features=128), nn.ReLU())
+        self.mu_linear = nn.Sequential(nn.Linear(in_features=128, out_features=latent_dim), nn.ReLU())
+        self.log_var_linear = nn.Sequential(nn.Linear(in_features=128, out_features=latent_dim), nn.ReLU())
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         x = self.layers(inputs)
-        latent_variable = x.view(-1, 4 * 4 * 64)
-        mean = self.mu_linear(latent_variable)
-        log_var = self.log_var_linear(latent_variable)
+        x = self.linear(x.view(-1, 7 * 7 * 64))
+        mean = self.mu_linear(x)
+        log_var = self.log_var_linear(x)
         return mean, log_var
 
 
@@ -63,7 +62,6 @@ class UpsampleLayer(nn.Module):
                 output_padding=output_padding,
                 bias=False,
             ),
-            nn.BatchNorm2d(out_channels),
             nn.ReLU(),
         )
 
@@ -76,25 +74,21 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
 
         self.latent_dim = latent_dim
-        self.linear = nn.Sequential(nn.Linear(in_features=latent_dim, out_features=4 * 4 * 64), nn.ReLU())
+        self.linear = nn.Sequential(
+            nn.Linear(in_features=latent_dim, out_features=128),
+            nn.ReLU(),
+            nn.Linear(in_features=128, out_features=7 * 7 * 64),
+            nn.ReLU(),
+        )
         self.layers = nn.Sequential(
-            UpsampleLayer(64, 32, output_padding=0),
-            UpsampleLayer(32, 16),
-            UpsampleLayer(16, output_channel),
+            UpsampleLayer(64, 32, output_padding=1),
+            UpsampleLayer(32, output_channel),
         )
-        self.output_layer = nn.Sequential(
-            nn.Conv2d(
-                in_channels=output_channel,
-                out_channels=output_channel,
-                kernel_size=1,
-                bias=False,
-            ),
-            nn.Sigmoid(),
-        )
+        self.output_layer = nn.Sigmoid()
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         x = self.linear(inputs)
-        x = x.view(-1, 64, 4, 4)
+        x = x.view(-1, 64, 7, 7)
         x = self.layers(x)
         return self.output_layer(x)
 
