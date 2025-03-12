@@ -37,8 +37,8 @@ class Encoder(nn.Module):
             DownsampleLayer(32, 64),
         )
         self.linear = nn.Sequential(nn.Linear(in_features=7 * 7 * 64, out_features=128), nn.ReLU())
-        self.mu_linear = nn.Sequential(nn.Linear(in_features=128, out_features=latent_dim), nn.ReLU())
-        self.log_var_linear = nn.Sequential(nn.Linear(in_features=128, out_features=latent_dim), nn.ReLU())
+        self.mu_linear = nn.Linear(in_features=128, out_features=latent_dim)
+        self.log_var_linear = nn.Linear(in_features=128, out_features=latent_dim)
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         x = self.layers(inputs)
