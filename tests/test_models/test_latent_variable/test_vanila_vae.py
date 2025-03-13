@@ -1,10 +1,10 @@
 import torch
 
-from gen_ai.models.latent_variable import ConvolutionalVAE
+from gen_ai.models.latent_variable import VanilaVAE
 
 
 def test_convolutional_vae():
-    vae = ConvolutionalVAE(1, 4)
+    vae = VanilaVAE(1, 4)
 
     tmp_inp = torch.randn(1, 1, 28, 28)
 

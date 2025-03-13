@@ -7,64 +7,26 @@ import torch.nn.functional as F
 from gen_ai.models import GenAIModelBase
 
 
-class DownsampleLayer(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int) -> None:
-        super().__init__()
-
-        self.layer = nn.Sequential(
-            nn.Conv2d(
-                in_channels,
-                out_channels,
-                kernel_size=3,
-                stride=2,
-                padding=1,
-            ),
-            nn.ReLU(),
-        )
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.layer(x)
-
-
 class Encoder(nn.Module):
     def __init__(self, input_channel: int, latent_dim: int) -> None:
         super(Encoder, self).__init__()
 
         self.latent_dim = latent_dim
         self.layers = nn.Sequential(
-            DownsampleLayer(input_channel, 32),
-            DownsampleLayer(32, 64),
+            nn.Linear(in_features=input_channel * 28 * 28, out_features=512),
+            nn.ReLU(),
+            nn.Linear(in_features=512, out_features=256),
+            nn.ReLU(),
         )
-        self.mu_linear = nn.Linear(in_features=7 * 7 * 64, out_features=latent_dim)
-        self.log_var_linear = nn.Linear(in_features=7 * 7 * 64, out_features=latent_dim)
+        self.mu_linear = nn.Linear(in_features=256, out_features=latent_dim)
+        self.log_var_linear = nn.Linear(in_features=256, out_features=latent_dim)
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
-        x = self.layers(inputs)
-        x = x.view(-1, 7 * 7 * 64)
+        x = inputs.view(-1, 28 * 28)
+        x = self.layers(x)
         mean = self.mu_linear(x)
         log_var = self.log_var_linear(x)
         return mean, log_var
-
-
-class UpsampleLayer(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int, output_padding: int = 1) -> None:
-        super().__init__()
-
-        self.layer = nn.Sequential(
-            nn.ConvTranspose2d(
-                in_channels,
-                out_channels,
-                kernel_size=3,
-                stride=2,
-                padding=1,
-                output_padding=output_padding,
-                bias=False,
-            ),
-            nn.ReLU(),
-        )
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.layer(x)
 
 
 class Decoder(nn.Module):
@@ -72,32 +34,24 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
 
         self.latent_dim = latent_dim
-        self.linear = nn.Sequential(
-            nn.Linear(in_features=latent_dim, out_features=7 * 7 * 64),
+        self.layers = nn.Sequential(
+            nn.Linear(in_features=latent_dim, out_features=256),
+            nn.ReLU(),
+            nn.Linear(in_features=256, out_features=512),
             nn.ReLU(),
         )
-        self.layers = nn.Sequential(
-            UpsampleLayer(64, 32, output_padding=1),
-            UpsampleLayer(32, output_channel, output_padding=1),
-        )
+
         self.output_layer = nn.Sequential(
-            nn.Conv2d(
-                in_channels=output_channel,
-                out_channels=output_channel,
-                kernel_size=3,
-                padding=1,
-            ),
+            nn.Linear(in_features=512, out_features=output_channel * 28 * 28),
             nn.Sigmoid(),
         )
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
-        x = self.linear(inputs)
-        x = x.view(-1, 64, 7, 7)
-        x = self.layers(x)
-        return self.output_layer(x)
+        x = self.layers(inputs)
+        return self.output_layer(x).view(-1, 1, 28, 28)
 
 
-class ConvolutionalVAE(nn.Module):
+class VanilaVAE(nn.Module):
     def __init__(self, img_channel: int, latent_dim: int) -> None:
         super().__init__()
         self.latent_dim = latent_dim
@@ -136,9 +90,9 @@ def elbo_loss(x: torch.Tensor, x_hat: torch.Tensor, mean: torch.Tensor, log_var:
 
 
 class LatentVariableModel(GenAIModelBase):
-    torch_module_class = ConvolutionalVAE
+    torch_module_class = VanilaVAE
 
-    def __init__(self, torch_module: ConvolutionalVAE, trainer, sampler, dataset):
+    def __init__(self, torch_module: VanilaVAE, trainer, sampler, dataset):
         super().__init__(torch_module, trainer, sampler, dataset)
 
     def train(self):

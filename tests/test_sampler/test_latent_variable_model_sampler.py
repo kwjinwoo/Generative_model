@@ -11,4 +11,4 @@ def test_sample(test_latent_model, tmp_path):
 
     sampler.sample(test_latent_model, save_dir, num_samples)
 
-    assert os.path.isfile(os.path.join(save_dir, "CVAE_generate.png")) is True
+    assert os.path.isfile(os.path.join(save_dir, "VAE_generate.png")) is True

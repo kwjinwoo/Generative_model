@@ -32,6 +32,6 @@ class LatentVariableModelSampler:
             plt.subplot(int(num_cols), int(num_cols), i + 1)
             plt.imshow(generated[i].permute(1, 2, 0).cpu().numpy(), cmap="gray")
             plt.axis("off")
-        plt.suptitle("CVAE generated samples")
-        plt.savefig(os.path.join(saved_dir, "CVAE_generate.png"))
+        plt.suptitle("VAE generated samples")
+        plt.savefig(os.path.join(saved_dir, "VAE_generate.png"))
         print(f"Latent Variable Sampling Finished. saved at {saved_dir}")
