@@ -18,7 +18,6 @@ class DownsampleLayer(nn.Module):
                 kernel_size=3,
                 stride=2,
                 padding=1,
-                bias=False,
             ),
             nn.ReLU(),
         )
@@ -55,7 +54,7 @@ class UpsampleLayer(nn.Module):
             nn.ConvTranspose2d(
                 in_channels,
                 out_channels,
-                kernel_size=4,
+                kernel_size=3,
                 stride=2,
                 padding=1,
                 output_padding=output_padding,
@@ -78,10 +77,18 @@ class Decoder(nn.Module):
             nn.ReLU(),
         )
         self.layers = nn.Sequential(
-            UpsampleLayer(64, 32, output_padding=0),
-            UpsampleLayer(32, output_channel, output_padding=0),
+            UpsampleLayer(64, 32, output_padding=1),
+            UpsampleLayer(32, output_channel, output_padding=1),
         )
-        self.output_layer = nn.Sigmoid()
+        self.output_layer = nn.Sequential(
+            nn.Conv2d(
+                in_channels=output_channel,
+                out_channels=output_channel,
+                kernel_size=3,
+                padding=1,
+            ),
+            nn.Sigmoid(),
+        )
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         x = self.linear(inputs)
