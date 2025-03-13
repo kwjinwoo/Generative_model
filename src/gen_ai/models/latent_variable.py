@@ -14,8 +14,10 @@ class Encoder(nn.Module):
         self.latent_dim = latent_dim
         self.layers = nn.Sequential(
             nn.Linear(in_features=input_channel * 28 * 28, out_features=512),
+            nn.BatchNorm1d(512),
             nn.ReLU(),
             nn.Linear(in_features=512, out_features=256),
+            nn.BatchNorm1d(256),
             nn.ReLU(),
         )
         self.mu_linear = nn.Linear(in_features=256, out_features=latent_dim)
@@ -36,8 +38,10 @@ class Decoder(nn.Module):
         self.latent_dim = latent_dim
         self.layers = nn.Sequential(
             nn.Linear(in_features=latent_dim, out_features=256),
+            nn.BatchNorm1d(256),
             nn.ReLU(),
             nn.Linear(in_features=256, out_features=512),
+            nn.BatchNorm1d(512),
             nn.ReLU(),
         )
 
