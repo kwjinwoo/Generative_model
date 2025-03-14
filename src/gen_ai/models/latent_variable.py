@@ -86,8 +86,8 @@ def elbo_loss(x: torch.Tensor, x_hat: torch.Tensor, mean: torch.Tensor, log_var:
     Returns:
         torch.Tensor: ELBO loss.
     """
-    reconst_loss = F.binary_cross_entropy(x_hat, x, reduction="mean")
-    kl_div = -0.5 * torch.sum(1 + log_var - mean.pow(2) - log_var.exp()) / x.size(0)
+    reconst_loss = F.binary_cross_entropy(x_hat, x, reduction="sum")
+    kl_div = -0.5 * torch.sum(1 + log_var - mean.pow(2) - log_var.exp())
     return reconst_loss + kl_div
 
 

@@ -59,7 +59,7 @@ class LatentVariableModelSampler:
             axes[0, i].imshow(origin[i].cpu().squeeze(), cmap="gray")
             axes[0, i].axis("off")
 
-            axes[1, i].imshow(recon[i].squeeze(), cmap="gray")
+            axes[1, i].imshow(recon[i].cpu().squeeze(), cmap="gray")
             axes[1, i].axis("off")
         plt.suptitle("Original (Top) vs. Reconstructed (Bottom)", fontsize=16)
         plt.savefig(os.path.join(save_dir, "VAE_reconstruct.png"))
