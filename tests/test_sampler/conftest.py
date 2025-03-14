@@ -35,6 +35,16 @@ def test_dataset():
 
 @pytest.fixture
 def test_latent_model():
+    class TestEncoder(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.latent_dim = 10
+            self.layers = nn.Sequential(nn.Flatten(), nn.Linear(28 * 28, 10))
+
+        def forward(self, x):
+            x = x.view(-1, 28 * 28)
+            return self.layers(x), self.layers(x)
+
     class TestDecoder(nn.Module):
         def __init__(self):
             super().__init__()
@@ -51,7 +61,7 @@ def test_latent_model():
         def __init__(self):
             self.latent_dim = 10
             super().__init__()
-            self.encoder = nn.Linear(28 * 28, 10)
+            self.encoder = TestEncoder()
             self.decoder = TestDecoder()
 
         def forward(self, x):

@@ -102,7 +102,7 @@ class LatentVariableModel(GenAIModelBase):
         return self.trainer.train(self.torch_module, self.dataset.train_loader)
 
     def sample(self, save_dir: str, num_samples: int):
-        self.sampler.sample(self.torch_module, save_dir, num_samples)
+        self.sampler.sample(self.torch_module, self.dataset.valid_dataset, save_dir, num_samples)
 
     def load(self, file_path):
         if not os.path.exists(file_path):

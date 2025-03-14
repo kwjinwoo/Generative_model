@@ -9,6 +9,16 @@ from gen_ai.trainer.latent_variable_model_trainer import LatentVariableModelTrai
 
 @pytest.fixture
 def test_model():
+    class TestEncoder(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.latent_dim = 10
+            self.layers = nn.Sequential(nn.Flatten(), nn.Linear(28 * 28, 10))
+
+        def forward(self, x):
+            x = x.view(-1, 28 * 28)
+            return self.layers(x), self.layers(x)
+
     class TestDecoder(nn.Module):
         def __init__(self):
             super().__init__()
@@ -25,6 +35,7 @@ def test_model():
         def __init__(self):
             super(TestModel, self).__init__()
             self.latent_dim = 10
+            self.encoder = TestEncoder()
             self.decoder = TestDecoder()
             self.conv = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=3, padding=1)
             self.sigmoid = nn.Sigmoid()
