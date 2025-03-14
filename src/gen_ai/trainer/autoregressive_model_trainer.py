@@ -13,6 +13,12 @@ class AutoregressiveModelTrainer(GenAITrainerBase):
         super().__init__(config)
 
     def train(self, model: nn.Module, data_loader: DataLoader) -> None:
+        """train AutoRegressive Model.
+
+        Args:
+            model (nn.Module): torch model
+            data_loader (DataLoader): train dataloader
+        """
         model.train()
         model.to(self.device)
 
@@ -33,6 +39,7 @@ class AutoregressiveModelTrainer(GenAITrainerBase):
         print("AutoRegressive Model Training Finished")
 
     def one_step(self, model: nn.Module, x: torch.Tensor) -> torch.Tensor:
+        """one batch training step."""
         self.optimizer.zero_grad()
         out = model(x)
         loss = self.criterion(out, x)

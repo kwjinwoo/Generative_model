@@ -9,21 +9,31 @@ from gen_ai.trainer import GenAITrainerBase
 
 
 class LatentVariableModelTrainer(GenAITrainerBase):
+    """Trainer for Latent Variable Model."""
+
     def __init__(self, config: dict[str, int | float | str]) -> None:
         super().__init__(config)
         self._criterion = None
 
     @property
     def criterion(self) -> Callable[[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor]:
+        """Criterion for Latent Variable Model."""
         if self._criterion is None:
             raise ValueError("Criterion is not set.")
         return self._criterion
 
     @criterion.setter
     def criterion(self, criterion: Callable) -> None:
+        """Set criterion for Latent Variable Model."""
         self._criterion = criterion
 
     def train(self, model: nn.Module, data_loader: DataLoader) -> None:
+        """train Latent Variable Model.
+
+        Args:
+            model (nn.Module): torch model
+            data_loader (DataLoader): train dataloader
+        """
         model.train()
         model.to(self.device)
 
@@ -44,6 +54,7 @@ class LatentVariableModelTrainer(GenAITrainerBase):
         print("Latent Variable Model Training Finished")
 
     def one_step(self, model: nn.Module, x: torch.Tensor) -> torch.Tensor:
+        """one batch training step."""
         self.optimizer.zero_grad()
         out, mean, log_var = model(x)
         loss = self.criterion(x, out, mean, log_var)
