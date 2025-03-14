@@ -13,19 +13,20 @@ class Encoder(nn.Module):
 
         self.latent_dim = latent_dim
         self.layers = nn.Sequential(
-            nn.Linear(in_features=input_channel * 28 * 28, out_features=512),
-            nn.BatchNorm1d(512),
+            nn.Conv2d(in_channels=input_channel, out_channels=32, kernel_size=4, stride=2, padding=1),
             nn.ReLU(),
-            nn.Linear(in_features=512, out_features=256),
-            nn.BatchNorm1d(256),
+            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=2, padding=1),
             nn.ReLU(),
         )
-        self.mu_linear = nn.Linear(in_features=256, out_features=latent_dim)
-        self.log_var_linear = nn.Linear(in_features=256, out_features=latent_dim)
+        self.flatten = nn.Flatten()
+        self.mu_linear = nn.Linear(in_features=128 * 4 * 4, out_features=latent_dim)
+        self.log_var_linear = nn.Linear(in_features=128 * 4 * 4, out_features=latent_dim)
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
-        x = inputs.view(-1, 28 * 28)
-        x = self.layers(x)
+        x = self.layers(inputs)
+        x = self.flatten(x)
         mean = self.mu_linear(x)
         log_var = self.log_var_linear(x)
         return mean, log_var
@@ -36,26 +37,23 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
 
         self.latent_dim = latent_dim
+        self.linear = nn.Linear(in_features=latent_dim, out_features=128 * 4 * 4)
         self.layers = nn.Sequential(
-            nn.Linear(in_features=latent_dim, out_features=256),
-            nn.BatchNorm1d(256),
+            nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=3, stride=2, padding=1),
             nn.ReLU(),
-            nn.Linear(in_features=256, out_features=512),
-            nn.BatchNorm1d(512),
+            nn.ConvTranspose2d(in_channels=64, out_channels=32, kernel_size=4, stride=2, padding=1),
             nn.ReLU(),
-        )
-
-        self.output_layer = nn.Sequential(
-            nn.Linear(in_features=512, out_features=output_channel * 28 * 28),
+            nn.ConvTranspose2d(in_channels=32, out_channels=output_channel, kernel_size=4, stride=2, padding=1),
             nn.Sigmoid(),
         )
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
-        x = self.layers(inputs)
-        return self.output_layer(x).view(-1, 1, 28, 28)
+        x = self.linear(inputs)
+        x = x.view(-1, 128, 4, 4)
+        return self.layers(x)
 
 
-class VanilaVAE(nn.Module):
+class ConvolutionalVAE(nn.Module):
     def __init__(self, img_channel: int, latent_dim: int) -> None:
         super().__init__()
         self.latent_dim = latent_dim
@@ -94,9 +92,9 @@ def elbo_loss(x: torch.Tensor, x_hat: torch.Tensor, mean: torch.Tensor, log_var:
 
 
 class LatentVariableModel(GenAIModelBase):
-    torch_module_class = VanilaVAE
+    torch_module_class = ConvolutionalVAE
 
-    def __init__(self, torch_module: VanilaVAE, trainer, sampler, dataset):
+    def __init__(self, torch_module: ConvolutionalVAE, trainer, sampler, dataset):
         super().__init__(torch_module, trainer, sampler, dataset)
 
     def train(self):
