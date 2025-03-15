@@ -59,6 +59,11 @@ class RealNVP(nn.Module):
         return x
 
 
+def normalizing_flow_loss(z: torch.Tensor, log_det_jacobian: torch.Tensor) -> torch.Tensor:
+    log_prob = -0.5 * (z**2).sum(dim=1)
+    return -(log_prob + log_det_jacobian).mean()
+
+
 class NormalizingFlowModel(GenAIModelBase):
     torch_module_class = RealNVP
 
@@ -66,6 +71,7 @@ class NormalizingFlowModel(GenAIModelBase):
         super().__init__(torch_module, trainer, sampler, dataset)
 
     def train(self) -> None:
+        self.trainer.criterion = normalizing_flow_loss
         pass
 
     def sample(self, save_dir: str, num_samples: int) -> None:
