@@ -11,10 +11,20 @@ from torch.utils.data import DataLoader, Dataset
 
 
 class LatentVariableModelSampler:
+    """LatentVariableModelSampler class to sample from latent variable models."""
+
     def __init__(self) -> None:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def sample(self, model: nn.Module, dataset: Dataset, saved_dir: str, num_samples: int) -> None:
+        """sample method to sample from latent variable models.
+
+        Args:
+            model (nn.Module): latent variable model
+            dataset (Dataset): valid dataset
+            saved_dir (str): saved directory
+            num_samples (int): the number of samples
+        """
         if os.path.exists(saved_dir) is False:
             os.makedirs(saved_dir)
         model.eval()
@@ -24,6 +34,7 @@ class LatentVariableModelSampler:
         self.reconstruct(model, dataset, saved_dir)
 
     def random_sample(self, model: nn.Module, saved_dir: str, num_samples: int) -> None:
+        """sample image from random latent variable."""
         print("Latent Variable Random Sampling Start.")
         latent_dim = model.latent_dim
         with torch.no_grad():
@@ -45,6 +56,7 @@ class LatentVariableModelSampler:
         print(f"Latent Variable Sampling Finished. saved at {saved_dir}")
 
     def reconstruct(self, model: nn.Module, dataset: Dataset, save_dir: str) -> None:
+        """reconstruct image from valid dataset."""
         valid_loader = DataLoader(dataset, batch_size=8)
         print("Latent Variable Reconstructing Start")
 
@@ -63,3 +75,4 @@ class LatentVariableModelSampler:
             axes[1, i].axis("off")
         plt.suptitle("Original (Top) vs. Reconstructed (Bottom)", fontsize=16)
         plt.savefig(os.path.join(save_dir, "VAE_reconstruct.png"))
+        print(f"Latent Variable Reconstructing Finished. saved at {save_dir}")

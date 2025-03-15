@@ -8,10 +8,20 @@ from torch.utils.data import DataLoader, Dataset
 
 
 class AutoRegressiveModelSampler:
+    """AtuoRegressiveModelSampler class to sample from autoregressive models."""
+
     def __init__(self):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def sample(self, model: nn.Module, dataset: Dataset, saved_dir: str, num_samples: int) -> None:
+        """sample method to sample from autoregressive models.
+
+        Args:
+            model (nn.Module): autoregressive model
+            dataset (Dataset): valid dataset
+            saved_dir (str): svaed directory
+            num_samples (int): the number of samples
+        """
         if os.path.exists(saved_dir) is False:
             os.makedirs(saved_dir)
         model.eval()
@@ -21,6 +31,7 @@ class AutoRegressiveModelSampler:
         self.half_sample(model, dataset, saved_dir, num_samples)
 
     def full_sample(self, model: nn.Module, saved_dir: str, num_samples: int) -> None:
+        """sample full image from autoregressive model."""
         generated = torch.zeros((num_samples, 1, 28, 28), dtype=torch.float32)
         generated = generated.to(self.device)
         print("AutoRegressive Full Sampling Start.")
@@ -43,6 +54,7 @@ class AutoRegressiveModelSampler:
         print(f"AutoRegressive Full Sampling Finished. saved at {saved_dir}")
 
     def half_sample(self, model: nn.Module, valid_dataset: Dataset, saved_dir: str, num_samples: int) -> None:
+        """sample half of the image from autoregressive model."""
         valid_loader = DataLoader(valid_dataset, batch_size=num_samples)
         generated = next(iter(valid_loader))[0].to(self.device)
         generated[:, :, 14:, :] = 0
