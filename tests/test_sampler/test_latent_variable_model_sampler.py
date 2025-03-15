@@ -13,3 +13,4 @@ def test_sample(test_latent_model, test_dataset, tmp_path):
 
     assert os.path.isfile(os.path.join(save_dir, "VAE_generate.png")) is True
     assert os.path.isfile(os.path.join(save_dir, "VAE_reconstruct.png")) is True
+    assert os.path.isfile(os.path.join(save_dir, "VAE_interpolate.png")) is True

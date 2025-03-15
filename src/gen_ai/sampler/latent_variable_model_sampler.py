@@ -32,6 +32,7 @@ class LatentVariableModelSampler:
 
         self.random_sample(model, saved_dir, num_samples)
         self.reconstruct(model, dataset, saved_dir)
+        self.interpolate_latent_space(model, saved_dir)
 
     def random_sample(self, model: nn.Module, saved_dir: str, num_samples: int) -> None:
         """sample image from random latent variable."""
@@ -76,3 +77,25 @@ class LatentVariableModelSampler:
         plt.suptitle("Original (Top) vs. Reconstructed (Bottom)", fontsize=16)
         plt.savefig(os.path.join(save_dir, "VAE_reconstruct.png"))
         print(f"Latent Variable Reconstructing Finished. saved at {save_dir}")
+
+    def interpolate_latent_space(self, model: nn.Module, save_dir: str) -> None:
+        """interpolate latent space."""
+        print("Latent Variable Interpolating Start.")
+        latent_dim = model.latent_dim
+        with torch.no_grad():
+            z1 = torch.randn((latent_dim,), device=self.device)
+            z2 = torch.randn((latent_dim,), device=self.device)
+
+            z = torch.cat([z1.unsqueeze(0), z2.unsqueeze(0)], dim=0)
+            z = z.unsqueeze(0).repeat(8, 1, 1)
+
+            generated = model.decoder(z)
+            generated = torch.bernoulli(generated)
+
+        for i in range(8):
+            plt.subplot(1, 8, i + 1)
+            plt.imshow(generated[i].permute(1, 2, 0).cpu().numpy(), cmap="gray")
+            plt.axis("off")
+        plt.suptitle("Latent Variable Interpolation")
+        plt.savefig(os.path.join(save_dir, "VAE_interpolate.png"))
+        print(f"Latent Variable Interpolating Finished. saved at {save_dir}")
