@@ -120,7 +120,7 @@ class LatentVariableModelSampler:
 
         fig, axes = plt.subplots(1, 10, figsize=(10, 2))
         for i in range(10):
-            axes[i].imshow(generated[i].squeeze(), cmap="gray")
+            axes[i].imshow(generated[i].cpu().squeeze(), cmap="gray")
             axes[i].axis("off")
 
         plt.suptitle("Latent Variable Interpolation")
