@@ -1,3 +1,5 @@
+import random
+
 import pytest
 import torch
 import torch.nn as nn
@@ -56,7 +58,7 @@ def test_dataset():
             return len(self.data)
 
         def __getitem__(self, idx):
-            return self.data[idx], 0
+            return self.data[idx], random.randint(0, 10)
 
     class TestDatasetClass:
         def __init__(self, dataset):

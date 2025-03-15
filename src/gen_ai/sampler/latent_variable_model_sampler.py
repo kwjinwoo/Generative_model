@@ -10,6 +10,32 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 
 
+def get_random_sample(dataset: Dataset, device: torch.device) -> tuple[torch.Tensor, torch.Tensor]:
+    """get random sample for latent space interpolation.
+    it sample two data from dataset randomly. if two samples are different class, return data.
+
+    Args:
+        dataset (Dataset): dataset
+        device (torch.device): device
+
+    Raises:
+        RuntimeError: if the number of iter is exceed max iter.
+
+    Returns:
+        tuple[torch.Tensor, torch.Tensor]: randome two data.
+    """
+    MAX_ITER = 10
+    iter = 0
+    while MAX_ITER >= iter:
+        random_idx = torch.randint(0, len(dataset), (2,))
+        x1, class1 = dataset[random_idx[0]]
+        x2, class2 = dataset[random_idx[1]]
+        if class1 != class2:
+            return x1.unsqueeze(0).to(device), x2.unsqueeze(0).to(device)
+        iter += 1
+    raise RuntimeError("Exceed MAX ITER.")
+
+
 class LatentVariableModelSampler:
     """LatentVariableModelSampler class to sample from latent variable models."""
 
@@ -32,7 +58,7 @@ class LatentVariableModelSampler:
 
         self.random_sample(model, saved_dir, num_samples)
         self.reconstruct(model, dataset, saved_dir)
-        self.interpolate_latent_space(model, saved_dir)
+        self.interpolate_latent_space(model, dataset, saved_dir)
 
     def random_sample(self, model: nn.Module, saved_dir: str, num_samples: int) -> None:
         """sample image from random latent variable."""
@@ -78,24 +104,25 @@ class LatentVariableModelSampler:
         plt.savefig(os.path.join(save_dir, "VAE_reconstruct.png"))
         print(f"Latent Variable Reconstructing Finished. saved at {save_dir}")
 
-    def interpolate_latent_space(self, model: nn.Module, save_dir: str) -> None:
+    def interpolate_latent_space(self, model: nn.Module, dataset: Dataset, save_dir: str) -> None:
         """interpolate latent space."""
         print("Latent Variable Interpolating Start.")
-        latent_dim = model.latent_dim
+        x1, x2 = get_random_sample(dataset, self.device)
         with torch.no_grad():
-            z1 = torch.randn((latent_dim,), device=self.device)
-            z2 = torch.randn((latent_dim,), device=self.device)
+            z1, _ = model.encoder(x1)
+            z2, _ = model.encoder(x2)
 
-            z = torch.cat([z1.unsqueeze(0), z2.unsqueeze(0)], dim=0)
-            z = z.unsqueeze(0).repeat(8, 1, 1)
+            alphas = torch.linspace(0, 1, 10).to(self.device)  # 0~1 사이의 값 생성
+            interpolated_z = torch.stack([(1 - alpha) * z1 + alpha * z2 for alpha in alphas])
 
-            generated = model.decoder(z)
+            generated = model.decoder(interpolated_z)
             generated = torch.bernoulli(generated)
 
-        for i in range(8):
-            plt.subplot(1, 8, i + 1)
-            plt.imshow(generated[i].permute(1, 2, 0).cpu().numpy(), cmap="gray")
-            plt.axis("off")
+        fig, axes = plt.subplots(1, 10, figsize=(10, 2))
+        for i in range(10):
+            axes[i].imshow(generated[i].squeeze(), cmap="gray")
+            axes[i].axis("off")
+
         plt.suptitle("Latent Variable Interpolation")
         plt.savefig(os.path.join(save_dir, "VAE_interpolate.png"))
         print(f"Latent Variable Interpolating Finished. saved at {save_dir}")
