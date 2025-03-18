@@ -164,21 +164,21 @@ class LatentVariableModel(GenAIModelBase):
     ) -> None:
         super().__init__(torch_module, trainer, sampler, dataset)
 
-    def train(self):
+    def train(self) -> None:
         self.trainer.criterion = elbo_loss
-        return self.trainer.train(self.torch_module, self.dataset.train_loader)
+        self.trainer.train(self.torch_module, self.dataset.train_loader)
 
     def sample(self, save_dir: str, num_samples: int):
         self.sampler.sample(self.torch_module, self.dataset.valid_dataset, save_dir, num_samples)
 
-    def load(self, file_path):
+    def load(self, file_path) -> None:
         """load trained model from file path."""
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File {file_path} does not exist.")
 
         self.torch_module.load_state_dict(torch.load(file_path, map_location=self.sampler.device))
 
-    def save(self, save_dir: str):
+    def save(self, save_dir: str) -> None:
         """save trained model to save dir.
 
         Args:

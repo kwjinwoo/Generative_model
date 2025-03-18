@@ -1,6 +1,5 @@
 model_type: "normalizing_flow"
 module_config:
-  img_channel: 1
   num_layers: 4
 data:
   batch_size: 128
