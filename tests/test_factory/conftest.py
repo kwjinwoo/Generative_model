@@ -32,3 +32,18 @@ def latent_variable_config(tmp_path):
         yaml.dump(data, f)
 
     return GenAIConfig(config_path)
+
+
+@pytest.fixture
+def normalizaing_flow_model_config(tmp_path):
+    config_path = str(tmp_path / "normalizing_flow_config.yaml")
+    data = {
+        "model_type": "normalizing_flow",
+        "module_config": {"num_layers": 4},
+        "data": {"batch_size": 32, "num_workers": 4},
+        "train": {},
+    }
+    with open(config_path, "w") as f:
+        yaml.dump(data, f)
+
+    return GenAIConfig(config_path)

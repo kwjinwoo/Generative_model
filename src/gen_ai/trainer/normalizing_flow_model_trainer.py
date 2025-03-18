@@ -59,3 +59,4 @@ class NormalizingFlowModelTrainer(GenAITrainerBase):
         loss = self.criterion(z, log_det_jacobian)
         loss.backward()
         self.optimizer.step()
+        return loss

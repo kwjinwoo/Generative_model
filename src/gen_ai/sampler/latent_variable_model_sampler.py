@@ -62,7 +62,7 @@ class LatentVariableModelSampler:
 
     def random_sample(self, model: nn.Module, saved_dir: str, num_samples: int) -> None:
         """sample image from random latent variable."""
-        print("Latent Variable Random Sampling Start.")
+        print("Latent Variable Model Random Sampling Start.")
         latent_dim = model.latent_dim
         with torch.no_grad():
             eps = torch.randn((num_samples, latent_dim), device=self.device)
@@ -80,12 +80,12 @@ class LatentVariableModelSampler:
             plt.axis("off")
         plt.suptitle("VAE generated samples")
         plt.savefig(os.path.join(saved_dir, "VAE_generate.png"))
-        print(f"Latent Variable Sampling Finished. saved at {saved_dir}")
+        print(f"Latent Variable Model Sampling Finished. saved at {saved_dir}")
 
     def reconstruct(self, model: nn.Module, dataset: Dataset, save_dir: str) -> None:
         """reconstruct image from valid dataset."""
         valid_loader = DataLoader(dataset, batch_size=8)
-        print("Latent Variable Reconstructing Start")
+        print("Latent Variable Model Reconstructing Start")
 
         origin = next(iter(valid_loader))[0].to(self.device)
         with torch.no_grad():
@@ -102,11 +102,11 @@ class LatentVariableModelSampler:
             axes[1, i].axis("off")
         plt.suptitle("Original (Top) vs. Reconstructed (Bottom)", fontsize=16)
         plt.savefig(os.path.join(save_dir, "VAE_reconstruct.png"))
-        print(f"Latent Variable Reconstructing Finished. saved at {save_dir}")
+        print(f"Latent Variable Model Reconstructing Finished. saved at {save_dir}")
 
     def interpolate_latent_space(self, model: nn.Module, dataset: Dataset, save_dir: str) -> None:
         """interpolate latent space."""
-        print("Latent Variable Interpolating Start.")
+        print("Latent Variable Model Interpolating Start.")
         x1, x2 = get_random_sample(dataset, self.device)
         with torch.no_grad():
             z1, _ = model.encoder(x1)
@@ -125,4 +125,4 @@ class LatentVariableModelSampler:
 
         plt.suptitle("Latent Variable Interpolation")
         plt.savefig(os.path.join(save_dir, "VAE_interpolate.png"))
-        print(f"Latent Variable Interpolating Finished. saved at {save_dir}")
+        print(f"Latent Variable Model Interpolating Finished. saved at {save_dir}")

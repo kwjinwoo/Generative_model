@@ -73,3 +73,23 @@ def test_latent_model():
             return x
 
     return TestLatentModel()
+
+
+@pytest.fixture
+def test_normalizing_model():
+    class TestModel(nn.Module):
+        def __init__(self):
+            super(TestModel, self).__init__()
+            self.flatten = nn.Flatten()
+            self.layer = nn.Linear(28 * 28, 28 * 28)
+            self.sigmoid = nn.Sigmoid()
+
+        def forward(self, x):
+            x = self.flatten(x)
+            x = self.layer(x)
+            return self.sigmoid(x.view(-1, 1, 28, 28))
+
+        def inverse(self, x):
+            return self.sigmoid(x.view(-1, 1, 28, 28))
+
+    return TestModel()
