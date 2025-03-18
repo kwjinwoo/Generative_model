@@ -33,7 +33,7 @@ class NormalizingFlowModelSampler:
         """sample image from random latent variable."""
         print("Normalizing Flow Model Random Sampling Start.")
         with torch.no_grad():
-            z = torch.randn(num_samples, 784)
+            z = torch.randn(num_samples, 784, device=self.device)
 
             generated = model.inverse(z)
             generated = generated.view(-1, 1, 28, 28)
