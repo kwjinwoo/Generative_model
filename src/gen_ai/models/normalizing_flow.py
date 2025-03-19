@@ -7,42 +7,49 @@ from gen_ai.models import GenAIModelBase
 
 
 class AffineCouplingLayer(nn.Module):
-    def __init__(self, in_features: int) -> None:
+    def __init__(self, in_features: int, mask: torch.Tensor) -> None:
         super().__init__()
+        self.mask = mask
 
         self.scale_layer = nn.Sequential(
-            nn.Linear(in_features=in_features // 2, out_features=256),
+            nn.Linear(in_features=in_features, out_features=512),
             nn.ReLU(),
-            nn.Linear(in_features=256, out_features=in_features // 2),
+            nn.Linear(in_features=512, out_features=512),
+            nn.ReLU(),
+            nn.Linear(in_features=512, out_features=in_features),
+            nn.Tanh(),
         )
         self.translate_layer = nn.Sequential(
-            nn.Linear(in_features=in_features // 2, out_features=256),
+            nn.Linear(in_features=in_features, out_features=512),
             nn.ReLU(),
-            nn.Linear(in_features=256, out_features=in_features // 2),
+            nn.Linear(in_features=512, out_features=512),
+            nn.ReLU(),
+            nn.Linear(in_features=512, out_features=in_features),
         )
 
-    def forward(self, inputs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-        x1, x2 = inputs.chunk(2, dim=1)
-        scale = self.scale_layer(x1).tanh()
-        translate = self.translate_layer(x1)
+    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        x1 = x * self.mask
+        scale = self.scale_layer(x1) * (1 - self.mask)
+        translate = self.translate_layer(x1) * (1 - self.mask)
 
-        x2 = x2 * torch.exp(scale) + translate
-        return torch.cat([x1, x2], dim=1), scale.sum(dim=1)
+        z = x1 + (1 - self.mask) * (x * torch.exp(scale) + translate)
+        return z, scale.sum(dim=1)
 
-    def inverse(self, inputs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-        x1, x2 = inputs.chunk(2, dim=1)
-        scale = self.scale_layer(x1).tanh()
-        translate = self.translate_layer(x1)
+    def inverse(self, z: torch.Tensor) -> torch.Tensor:
+        z1 = z * self.mask
+        scale = self.scale_layer(z1) * (1 - self.mask)
+        translate = self.translate_layer(z1) * (1 - self.mask)
 
-        x2 = (x2 - translate) / torch.exp(scale)
-        return torch.cat([x1, x2], dim=1), scale.sum(dim=1)
+        x = z1 + (1 - self.mask) * ((z - translate) * torch.exp(-scale))
+        return x
 
 
 class RealNVP(nn.Module):
     def __init__(self, num_layers: int) -> None:
         super().__init__()
         self.flatten = nn.Flatten()
-        self.layers = nn.ModuleList([AffineCouplingLayer(28 * 28) for _ in range(num_layers)])
+        masks = [torch.arange(28 * 28) % 2 for _ in range(num_layers)]
+        self.layers = nn.ModuleList([AffineCouplingLayer(28 * 28, mask) for mask in masks])
 
     def forward(self, inputs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         log_det_jacobian = 0
@@ -53,10 +60,10 @@ class RealNVP(nn.Module):
             log_det_jacobian += log_det
         return x, log_det_jacobian
 
-    def inverse(self, x: torch.Tensor) -> torch.Tensor:
+    def inverse(self, z: torch.Tensor) -> torch.Tensor:
         for layer in reversed(self.layers):
-            x, _ = layer(x)
-        return x
+            z = layer.inverse(z)
+        return z
 
 
 def normalizing_flow_loss(z: torch.Tensor, log_det_jacobian: torch.Tensor) -> torch.Tensor:
