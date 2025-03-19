@@ -9,7 +9,7 @@ from gen_ai.models import GenAIModelBase
 class AffineCouplingLayer(nn.Module):
     def __init__(self, in_features: int, mask: torch.Tensor) -> None:
         super().__init__()
-        self.mask = mask
+        self.register_buffer("mask", mask)
 
         self.scale_layer = nn.Sequential(
             nn.Linear(in_features=in_features, out_features=512),
