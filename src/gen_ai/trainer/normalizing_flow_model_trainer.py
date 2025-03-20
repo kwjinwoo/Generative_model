@@ -8,6 +8,10 @@ from tqdm import tqdm
 from gen_ai.trainer import GenAITrainerBase
 
 
+def dequantize(x, alpha=1e-5):
+    return (x + torch.rand_like(x) * alpha).clamp(0, 1)
+
+
 class NormalizingFlowModelTrainer(GenAITrainerBase):
     """Trainer for Normalizing Flow Model."""
 
@@ -44,7 +48,7 @@ class NormalizingFlowModelTrainer(GenAITrainerBase):
             total_loss = 0
             pbar = tqdm(data_loader, total=len(data_loader))
             for x, _ in pbar:
-                x = x.to(self.device)
+                x = dequantize(x).to(self.device)
 
                 loss = self.one_step(model, x)
                 total_loss += loss.item()
