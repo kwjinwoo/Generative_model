@@ -36,7 +36,7 @@ class NormalizingFlowModelSampler:
             z = torch.randn(num_samples, 784, device=self.device)
 
             generated = model.inverse(z)
-            generated = generated.view(-1, 1, 28, 28)
+            generated = torch.sigmoid(generated.view(-1, 1, 28, 28))
 
         num_cols = math.sqrt(num_samples)
         if not num_cols.is_integer():
