@@ -32,7 +32,7 @@ class AffineCouplingLayer(nn.Module):
         scale = self.scale_layer(x1) * (1 - self.mask)
         translate = self.translate_layer(x1) * (1 - self.mask)
 
-        x = x1 + (z * torch.exp(scale) + translate)
+        x = x1 + (z * torch.exp(scale) + translate) * (1 - self.mask)
         return x
 
     def inverse(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
@@ -40,7 +40,7 @@ class AffineCouplingLayer(nn.Module):
         scale = self.scale_layer(z1) * (1 - self.mask)
         translate = self.translate_layer(z1) * (1 - self.mask)
 
-        z = z1 + ((x - translate) * torch.exp(-scale))
+        z = z1 + ((x - translate) * torch.exp(-scale)) * (1 - self.mask)
         return z, scale.sum(dim=1)
 
 
