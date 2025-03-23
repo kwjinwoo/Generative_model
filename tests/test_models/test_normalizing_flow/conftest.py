@@ -18,10 +18,10 @@ def test_model():
 
         def forward(self, x, reverse):
             if reverse:
-                x = x.view(-1, 28 * 28)
                 x = self.layer(x)
                 return self.sigmoid(x), torch.sum(x, dim=1)
             else:
+                x = x.view(-1, 28 * 28)
                 x = self.layer(x)
                 return self.sigmoid(x), torch.sum(x, dim=1)
 

@@ -21,11 +21,11 @@ def test_model():
 
         def forward(self, x, reverse):
             if reverse:
+                return x.view(-1, 1, 28, 28), torch.sum(x, dim=1)
+            else:
                 x = self.flatten(x)
                 x = self.layer(x)
                 return self.sigmoid(x), torch.sum(x, dim=1)
-            else:
-                return x.view(-1, 1, 28, 28), torch.sum(x, dim=1)
 
     return TestModel()
 

@@ -58,7 +58,7 @@ class NormalizingFlowModelTrainer(GenAITrainerBase):
     def one_step(self, model: nn.Module, x: torch.Tensor) -> torch.Tensor:
         """one batch training step."""
         self.optimizer.zero_grad()
-        z, log_det_jacobian = model(x, reverse=True)
+        z, log_det_jacobian = model(x, reverse=False)
         loss = self.criterion(z, log_det_jacobian, self.prior)
         loss.backward()
         self.optimizer.step()

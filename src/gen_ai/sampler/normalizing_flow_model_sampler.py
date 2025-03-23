@@ -35,7 +35,7 @@ class NormalizingFlowModelSampler:
         with torch.no_grad():
             z = torch.randn(num_samples, 784, device=self.device)
 
-            generated, _ = model(z, reverse=False)
+            generated, _ = model(z, reverse=True)
             generated = torch.sigmoid(generated.view(-1, 1, 28, 28))
 
         num_cols = math.sqrt(num_samples)

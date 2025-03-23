@@ -27,7 +27,7 @@ class AffineCouplingLayer(nn.Module):
             nn.Linear(in_features=512, out_features=in_features),
         )
 
-    def forward(self, inputs: torch.Tensor, reverse: bool = True) -> torch.Tensor:
+    def forward(self, inputs: torch.Tensor, reverse: bool) -> torch.Tensor:
         if reverse:
             return self.inverse_mapping(inputs)
         else:
@@ -62,13 +62,13 @@ class RealNVP(nn.Module):
         ]
         self.layers = nn.ModuleList([AffineCouplingLayer(28 * 28, mask) for mask in masks])
 
-    def forward(self, x: torch.Tensor, reverse: bool = True) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, reverse: bool) -> torch.Tensor:
         log_det_jacobian = 0
 
         if reverse:
-            x = x.view(-1, 28 * 28)
             layers = reversed(self.layers)
         else:
+            x = x.view(-1, 28 * 28)
             layers = self.layers
 
         for layer in layers:

@@ -8,13 +8,13 @@ def test_real_nvp():
 
     tmp_inp = torch.randn(4, 1, 28, 28)
 
-    z, log_det_jacobian = real_nvp(tmp_inp, reverse=True)
+    z, log_det_jacobian = real_nvp(tmp_inp, reverse=False)
 
     assert z.size() == torch.Size([4, 28 * 28])
     assert log_det_jacobian.size() == torch.Size([4])
 
     temp_z = torch.randn(4, 28 * 28)
 
-    x, _ = real_nvp(temp_z, reverse=False)
+    x, _ = real_nvp(temp_z, reverse=True)
 
     assert x.size() == torch.Size([4, 28 * 28])

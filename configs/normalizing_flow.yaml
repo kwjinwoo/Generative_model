@@ -1,6 +1,6 @@
 model_type: "normalizing_flow"
 module_config:
-  num_layers: 6
+  num_layers: 12
 data:
   batch_size: 128
   num_workers: 4
