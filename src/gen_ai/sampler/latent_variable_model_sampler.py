@@ -112,7 +112,7 @@ class LatentVariableModelSampler:
             z1, _ = model.encoder(x1)
             z2, _ = model.encoder(x2)
 
-            alphas = torch.linspace(0, 1, 10).to(self.device)  # 0~1 사이의 값 생성
+            alphas = torch.linspace(0, 1, 10).to(self.device)
             interpolated_z = torch.stack([(1 - alpha) * z1 + alpha * z2 for alpha in alphas])
 
             generated = model.decoder(interpolated_z)

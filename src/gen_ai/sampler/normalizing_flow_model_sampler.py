@@ -1,10 +1,13 @@
 import math
 import os
 
+import matplotlib
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset
+from torch.utils.data import DataLoader, Dataset
 
 
 class NormalizingFlowModelSampler:
@@ -28,6 +31,7 @@ class NormalizingFlowModelSampler:
         model.to(self.device)
 
         self.random_sample(model, save_dir, num_samples)
+        self.reconstruct(model, dataset, save_dir)
 
     def random_sample(self, model: nn.Module, save_dir: str, num_samples: int) -> None:
         """sample image from random latent variable."""
@@ -49,3 +53,23 @@ class NormalizingFlowModelSampler:
         plt.suptitle("RealNVP generated samples")
         plt.savefig(os.path.join(save_dir, "RealNVP_generated.png"))
         print(f"Normalizing Flow Model Finished. saved at {save_dir}")
+
+    def reconstruct(self, model: nn.Module, dataset: Dataset, save_dir: str) -> None:
+        valid_loader = DataLoader(dataset, batch_size=8)
+        print("Normalizing Flow Model Reconstructing Strat.")
+
+        origin = next(iter(valid_loader))[0].to(self.device)
+        with torch.no_grad():
+            z, _ = model(origin, reverse=False)
+            recon, _ = model(z, reverse=True)
+
+        fig, axes = plt.subplots(2, 8, figsize=(8, 2))
+        for i in range(8):
+            axes[0, i].imshow(origin[i].cpu().squeeze(), cmap="gray")
+            axes[0, i].axis("off")
+
+            axes[1, i].imshow(recon[i].cpu().squeeze(), cmap="gray")
+            axes[1, i].axis("off")
+        plt.suptitle("Original (Top) vs. Reconstructed (Bottom)", fontsize=16)
+        plt.savefig(os.path.join(save_dir, "RealNVP_reconstruct.png"))
+        print(f"Normalizing Flow Model Reconstructing Finished. saved at {save_dir}")
