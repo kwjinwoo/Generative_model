@@ -62,7 +62,7 @@ class NormalizingFlowModelSampler:
         with torch.no_grad():
             z, _ = model(origin, reverse=False)
             recon, _ = model(z, reverse=True)
-
+        recon = recon.view(-1, 1, 28, 28)
         fig, axes = plt.subplots(2, 8, figsize=(8, 2))
         for i in range(8):
             axes[0, i].imshow(origin[i].cpu().squeeze(), cmap="gray")
