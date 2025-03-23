@@ -84,12 +84,12 @@ def test_normalizing_model():
             self.layer = nn.Linear(28 * 28, 28 * 28)
             self.sigmoid = nn.Sigmoid()
 
-        def forward(self, x):
-            x = self.flatten(x)
-            x = self.layer(x)
-            return self.sigmoid(x.view(-1, 1, 28, 28))
-
-        def inverse(self, x):
-            return self.sigmoid(x.view(-1, 1, 28, 28))
+        def forward(self, x, reverse):
+            if reverse:
+                x = self.flatten(x)
+                x = self.layer(x)
+                return self.sigmoid(x.view(-1, 1, 28, 28)), torch.sum(x, dim=1)
+            else:
+                return self.sigmoid(x.view(-1, 1, 28, 28)), torch.sum(x, dim=1)
 
     return TestModel()

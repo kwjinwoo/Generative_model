@@ -16,13 +16,14 @@ def test_model():
             self.layer = nn.Linear(28 * 28, 28 * 28)
             self.sigmoid = nn.Sigmoid()
 
-        def forward(self, x):
-            x = self.flatten(x)
-            x = self.layer(x)
-            return self.sigmoid(x.view(-1, 1, 28, 28))
-
-        def inverse(self, x):
-            return x.view(-1, 1, 28, 28)
+        def forward(self, x, reverse):
+            if reverse:
+                x = x.view(-1, 28 * 28)
+                x = self.layer(x)
+                return self.sigmoid(x), torch.sum(x, dim=1)
+            else:
+                x = self.layer(x)
+                return self.sigmoid(x), torch.sum(x, dim=1)
 
     return TestModel()
 

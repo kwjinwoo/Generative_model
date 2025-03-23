@@ -27,15 +27,21 @@ class AffineCouplingLayer(nn.Module):
             nn.Linear(in_features=512, out_features=in_features),
         )
 
-    def forward(self, z: torch.Tensor) -> torch.Tensor:
+    def forward(self, inputs: torch.Tensor, reverse: bool = True) -> torch.Tensor:
+        if reverse:
+            return self.inverse_mapping(inputs)
+        else:
+            return self.forward_mapping(inputs)
+
+    def forward_mapping(self, z: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         x1 = z * self.mask
         scale = self.scale_layer(x1) * (1 - self.mask)
         translate = self.translate_layer(x1) * (1 - self.mask)
 
         x = x1 + (z * torch.exp(scale) + translate) * (1 - self.mask)
-        return x
+        return x, scale.sum(dim=1)
 
-    def inverse(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    def inverse_mapping(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         z1 = x * self.mask
         scale = self.scale_layer(z1) * (1 - self.mask)
         translate = self.translate_layer(z1) * (1 - self.mask)
@@ -47,7 +53,6 @@ class AffineCouplingLayer(nn.Module):
 class RealNVP(nn.Module):
     def __init__(self, num_layers: int) -> None:
         super().__init__()
-        self.flatten = nn.Flatten()
         masks = [
             torch.tensor(
                 [1 if i % 2 == j % 2 else 0 for i in range(28 * 28)],
@@ -57,22 +62,27 @@ class RealNVP(nn.Module):
         ]
         self.layers = nn.ModuleList([AffineCouplingLayer(28 * 28, mask) for mask in masks])
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, reverse: bool = True) -> torch.Tensor:
         log_det_jacobian = 0
-        z = self.flatten(x)
-        for layer in reversed(self.layers):
-            z, log_det = layer.inverse(z)
+
+        if reverse:
+            x = x.view(-1, 28 * 28)
+            layers = reversed(self.layers)
+        else:
+            layers = self.layers
+
+        for layer in layers:
+            x, log_det = layer(x, reverse)
             log_det_jacobian += log_det
-        return z, log_det_jacobian
-
-    def inverse(self, x: torch.Tensor) -> torch.Tensor:
-        for layer in self.layers:
-            x = layer(x)
-        return x
+        return x, log_det_jacobian
 
 
-def normalizing_flow_loss(z: torch.Tensor, log_det_jacobian: torch.Tensor) -> torch.Tensor:
-    log_prob = -0.5 * (z**2).sum(dim=1)
+def normalizing_flow_loss(
+    z: torch.Tensor,
+    log_det_jacobian: torch.Tensor,
+    prior: torch.distributions.Distribution,
+) -> torch.Tensor:
+    log_prob = torch.sum(prior.log_prob(z), dim=1)
     return -(log_prob + log_det_jacobian).mean()
 
 

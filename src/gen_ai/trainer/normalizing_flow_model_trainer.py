@@ -14,6 +14,9 @@ class NormalizingFlowModelTrainer(GenAITrainerBase):
     def __init__(self, config: dict[str, int | float | str]) -> None:
         super().__init__(config)
         self._criterion = None
+        self.prior = torch.distributions.Normal(
+            torch.tensor(0.0, device=self.device), torch.tensor(1.0, device=self.device)
+        )
 
     @property
     def criterion(self) -> Callable[[torch.Tensor, torch.Tensor], torch.Tensor]:
@@ -55,8 +58,9 @@ class NormalizingFlowModelTrainer(GenAITrainerBase):
     def one_step(self, model: nn.Module, x: torch.Tensor) -> torch.Tensor:
         """one batch training step."""
         self.optimizer.zero_grad()
-        z, log_det_jacobian = model(x)
-        loss = self.criterion(z, log_det_jacobian)
+        z, log_det_jacobian = model(x, reverse=True)
+        print(z.shape)
+        loss = self.criterion(z, log_det_jacobian, self.prior)
         loss.backward()
         self.optimizer.step()
         return loss
