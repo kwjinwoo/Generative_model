@@ -59,7 +59,6 @@ class NormalizingFlowModelTrainer(GenAITrainerBase):
         """one batch training step."""
         self.optimizer.zero_grad()
         z, log_det_jacobian = model(x, reverse=True)
-        print(z.shape)
         loss = self.criterion(z, log_det_jacobian, self.prior)
         loss.backward()
         self.optimizer.step()
