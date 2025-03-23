@@ -6,5 +6,5 @@ data:
   num_workers: 4
 train:
   num_epochs: 20
-  learning_rate: 0.001
+  learning_rate: 0.0001
   optimizer: "adam"
