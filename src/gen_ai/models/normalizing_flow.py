@@ -77,6 +77,48 @@ class RealNVP(nn.Module):
         return x, log_det_jacobian
 
 
+class NICE(nn.Module):
+
+    def __init__(self, num_layers):
+        super().__init__()
+
+        self.m = torch.nn.ModuleList([nn.Sequential(
+            nn.Linear(28 * 28 // 2, 1000), nn.ReLU(),
+            nn.Linear(1000, 1000), nn.ReLU(),
+            nn.Linear(1000, 1000), nn.ReLU(),
+            nn.Linear(1000, 1000), nn.ReLU(),
+            nn.Linear(1000, 1000), nn.ReLU(),
+            nn.Linear(1000, 1000 // 2), ) for i in range(4)])
+        self.s = torch.nn.Parameter(torch.randn(28 * 28))
+
+    def forward(self, x, reverse):
+        if reverse:
+            x = x.clone() / torch.exp(self.s)
+            for i in range(len(self.m) - 1, -1, -1):
+                h_i1 = x[:, ::2]
+                h_i2 = x[:, 1::2]
+                x_i1 = h_i1
+                x_i2 = h_i2 - self.m[i](x_i1)
+                x = torch.empty(x.shape, device=x.device)
+                x[:, ::2] = x_i1 if (i % 2) == 0 else x_i2
+                x[:, 1::2] = x_i2 if (i % 2) == 0 else x_i1
+            return x
+        else:
+            x = x.clone()
+            x = x.view(-1, 28 * 28)
+            for i in range(len(self.m)):
+                x_i1 = x[:, ::2] if (i % 2) == 0 else x[:, 1::2]
+                x_i2 = x[:, 1::2] if (i % 2) == 0 else x[:, ::2]
+                h_i1 = x_i1
+                h_i2 = x_i2 + self.m[i](x_i1)
+                x = torch.empty(x.shape, device=x.device)
+                x[:, ::2] = h_i1
+                x[:, 1::2] = h_i2
+            z = torch.exp(self.s) * x
+            log_jacobian = torch.sum(self.s)
+            return z, log_jacobian
+    
+
 def normalizing_flow_loss(
     z: torch.Tensor,
     log_det_jacobian: torch.Tensor,
@@ -87,7 +129,7 @@ def normalizing_flow_loss(
 
 
 class NormalizingFlowModel(GenAIModelBase):
-    torch_module_class = RealNVP
+    torch_module_class = NICE
 
     def __init__(self, torch_module: RealNVP, trainer, sampler, dataset):
         super().__init__(torch_module, trainer, sampler, dataset)
