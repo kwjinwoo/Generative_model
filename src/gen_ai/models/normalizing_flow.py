@@ -88,7 +88,7 @@ class NICE(nn.Module):
             nn.Linear(1000, 1000), nn.ReLU(),
             nn.Linear(1000, 1000), nn.ReLU(),
             nn.Linear(1000, 1000), nn.ReLU(),
-            nn.Linear(1000, 1000 // 2), ) for i in range(4)])
+            nn.Linear(1000, (28 * 28) // 2), ) for i in range(4)])
         self.s = torch.nn.Parameter(torch.randn(28 * 28))
 
     def forward(self, x, reverse):
