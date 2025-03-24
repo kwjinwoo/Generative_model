@@ -12,19 +12,19 @@ class AffineCouplingLayer(nn.Module):
         self.register_buffer("mask", mask)
 
         self.scale_layer = nn.Sequential(
-            nn.Linear(in_features=in_features, out_features=256),
+            nn.Linear(in_features=in_features, out_features=512),
             nn.ReLU(),
-            nn.Linear(in_features=256, out_features=256),
+            nn.Linear(in_features=512, out_features=512),
             nn.ReLU(),
-            nn.Linear(in_features=256, out_features=in_features),
+            nn.Linear(in_features=512, out_features=in_features),
             nn.Tanh(),
         )
         self.translate_layer = nn.Sequential(
-            nn.Linear(in_features=in_features, out_features=256),
+            nn.Linear(in_features=in_features, out_features=512),
             nn.ReLU(),
-            nn.Linear(in_features=256, out_features=256),
+            nn.Linear(in_features=512, out_features=512),
             nn.ReLU(),
-            nn.Linear(in_features=256, out_features=in_features),
+            nn.Linear(in_features=512, out_features=in_features),
         )
 
     def forward(self, inputs: torch.Tensor, reverse: bool) -> torch.Tensor:
