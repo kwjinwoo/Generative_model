@@ -50,8 +50,8 @@ class NormalizingFlowModelSampler:
             plt.subplot(int(num_cols), int(num_cols), i + 1)
             plt.imshow(generated[i].permute(1, 2, 0).cpu().numpy(), cmap="gray")
             plt.axis("off")
-        plt.suptitle("RealNVP generated samples")
-        plt.savefig(os.path.join(save_dir, "RealNVP_generated.png"))
+        plt.suptitle("NICE generated samples")
+        plt.savefig(os.path.join(save_dir, "NICE_generated.png"))
         print(f"Normalizing Flow Model Finished. saved at {save_dir}")
 
     def reconstruct(self, model: nn.Module, dataset: Dataset, save_dir: str) -> None:
@@ -71,5 +71,5 @@ class NormalizingFlowModelSampler:
             axes[1, i].imshow(recon[i].cpu().squeeze(), cmap="gray")
             axes[1, i].axis("off")
         plt.suptitle("Original (Top) vs. Reconstructed (Bottom)", fontsize=16)
-        plt.savefig(os.path.join(save_dir, "RealNVP_reconstruct.png"))
+        plt.savefig(os.path.join(save_dir, "NICE_reconstruct.png"))
         print(f"Normalizing Flow Model Reconstructing Finished. saved at {save_dir}")

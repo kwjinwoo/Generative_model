@@ -39,7 +39,7 @@ def normalizaing_flow_model_config(tmp_path):
     config_path = str(tmp_path / "normalizing_flow_config.yaml")
     data = {
         "model_type": "normalizing_flow",
-        "module_config": {"num_layers": 4},
+        "module_config": {"num_layers": 4, "hidden_dim": 512},
         "data": {"batch_size": 32, "num_workers": 4},
         "train": {},
     }
