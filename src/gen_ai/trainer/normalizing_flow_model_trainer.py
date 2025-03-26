@@ -2,6 +2,7 @@ from typing import Callable
 
 import torch
 import torch.nn as nn
+from torch.distributions import Distribution
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -14,9 +15,7 @@ class NormalizingFlowModelTrainer(GenAITrainerBase):
     def __init__(self, config: dict[str, int | float | str]) -> None:
         super().__init__(config)
         self._criterion = None
-        self.prior = torch.distributions.Normal(
-            torch.tensor(0.0, device=self.device), torch.tensor(1.0, device=self.device)
-        )
+        self._prior = None
 
     @property
     def criterion(self) -> Callable[[torch.Tensor, torch.Tensor], torch.Tensor]:
@@ -29,6 +28,18 @@ class NormalizingFlowModelTrainer(GenAITrainerBase):
     def criterion(self, criterion: Callable) -> None:
         """Set criterion for Normalizing Flow Model."""
         self._criterion = criterion
+
+    @property
+    def prior(self) -> Distribution:
+        """Prior of Normalizing Flow Model."""
+        if self._prior is None:
+            raise ValueError("Prior is not set.")
+        return self._prior
+
+    @prior.setter
+    def prior(self, prior: Distribution):
+        """Set Prior for Normalizing Flow Model."""
+        self._prior = prior
 
     def train(self, model: nn.Module, data_loader: DataLoader) -> None:
         """train Normalizing Flow Model.

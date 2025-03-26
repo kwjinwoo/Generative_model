@@ -7,6 +7,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
+from torch.distributions import Distribution
 from torch.utils.data import DataLoader, Dataset
 
 
@@ -15,6 +16,19 @@ class NormalizingFlowModelSampler:
 
     def __init__(self) -> None:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self._prior = None
+
+    @property
+    def prior(self) -> Distribution:
+        """Prior of Normalizing Flow Model."""
+        if self._prior is None:
+            raise ValueError("Prior is not set.")
+        return self._prior
+
+    @prior.setter
+    def prior(self, prior: Distribution):
+        """Set Prior for Normalizing Flow Model."""
+        self._prior = prior
 
     def sample(self, model: nn.Module, dataset: Dataset, save_dir: str, num_samples: int) -> None:
         """sample method to sample from normalizing flow models.
@@ -37,10 +51,10 @@ class NormalizingFlowModelSampler:
         """sample image from random latent variable."""
         print("Normalizing Flow Model Random Sampling Start.")
         with torch.no_grad():
-            z = torch.randn(num_samples, 784, device=self.device)
+            z = self.prior.sample(torch.Size([num_samples, 28 * 28]))
 
             generated, _ = model(z, reverse=True)
-            generated = torch.sigmoid(generated.view(-1, 1, 28, 28))
+            generated = generated.view(-1, 1, 28, 28)
 
         num_cols = math.sqrt(num_samples)
         if not num_cols.is_integer():

@@ -2,8 +2,36 @@ import os
 
 import torch
 import torch.nn as nn
+from torch.distributions import AffineTransform, SigmoidTransform, TransformedDistribution, Uniform
 
 from gen_ai.models import GenAIModelBase
+
+
+class StandardLogisticDistribution:
+
+    def __init__(self, data_dim: int, device: torch.device):
+        self.m = TransformedDistribution(
+            Uniform(
+                torch.zeros(data_dim, device=device),
+                torch.ones(data_dim, device=device),
+            ),
+            [
+                SigmoidTransform().inv,
+                AffineTransform(
+                    torch.zeros(data_dim, device=device),
+                    torch.ones(data_dim, device=device),
+                ),
+            ],
+        )
+
+    def log_prob(self, z):
+        return self.m.log_prob(z)
+
+    def sample(self, size: torch.Size | None = None):
+        if size is None:
+            return self.m.sample()
+        else:
+            return self.m.sample(size)
 
 
 class AdditiveCouplingLayer(nn.Module):
@@ -119,14 +147,17 @@ class NormalizingFlowModel(GenAIModelBase):
 
     def __init__(self, torch_module: NICE, trainer, sampler, dataset):
         super().__init__(torch_module, trainer, sampler, dataset)
+        self.prior = StandardLogisticDistribution(28 * 28, torch.device("cuda" if torch.cuda.is_available() else "cpu"))
 
     def train(self) -> None:
         """Train Normalizing Flow Model."""
         self.trainer.criterion = normalizing_flow_loss
+        self.trainer.prior = self.prior
         self.trainer.train(self.torch_module, self.dataset.train_loader)
 
     def sample(self, save_dir: str, num_samples: int) -> None:
         """Sample Normalizing Flow Model."""
+        self.sampler.prior = self.prior
         self.sampler.sample(self.torch_module, self.dataset.valid_dataset, save_dir, num_samples)
 
     def load(self, file_path: str) -> None:
