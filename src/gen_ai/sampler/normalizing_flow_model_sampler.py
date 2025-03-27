@@ -51,10 +51,10 @@ class NormalizingFlowModelSampler:
         """sample image from random latent variable."""
         print("Normalizing Flow Model Random Sampling Start.")
         with torch.no_grad():
-            z = self.prior.sample(torch.Size([num_samples, 28 * 28]))
+            z = self.prior.sample(torch.Size([num_samples]))
 
             generated, _ = model(z, reverse=True)
-            generated = generated.view(-1, 1, 28, 28)
+            generated = generated.clip(0, 1).view(-1, 1, 28, 28)
 
         num_cols = math.sqrt(num_samples)
         if not num_cols.is_integer():
