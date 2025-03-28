@@ -23,7 +23,7 @@ class AutoregressiveModelTrainer(GenAITrainerBase):
         model.to(self.device)
 
         self.optimizer = self._get_optimizer(model)
-        self.criterion = nn.BCELoss()
+        self.criterion = nn.CrossEntropyLoss()
 
         print("AutoRegressive Model Training Start")
         for epoch in range(self.config["num_epochs"]):
@@ -31,6 +31,7 @@ class AutoregressiveModelTrainer(GenAITrainerBase):
             pbar = tqdm(data_loader, total=len(data_loader))
             for x, _ in pbar:
                 x = x.to(self.device)
+                x = x * 255.0
 
                 loss = self.one_step(model, x)
                 total_loss += loss.item()

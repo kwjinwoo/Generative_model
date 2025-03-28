@@ -10,4 +10,4 @@ def test_autoregressive_trainer(test_config, test_model, test_data_loader):
     trainer.train(test_model, test_data_loader)
 
     assert isinstance(trainer.optimizer, Adam)
-    assert isinstance(trainer.criterion, nn.BCELoss)
+    assert isinstance(trainer.criterion, nn.CrossEntropyLoss)

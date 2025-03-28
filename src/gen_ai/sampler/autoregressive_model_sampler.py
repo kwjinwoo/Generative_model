@@ -39,7 +39,8 @@ class AutoRegressiveModelSampler:
             for h in range(28):
                 for w in range(28):
                     out = model(generated)
-                    generated_pixel = torch.bernoulli(out[:, :, h, w])
+                    out = torch.softmax(out[:, :, h, w], dim=1)
+                    generated_pixel = torch.multinomial(out, num_samples=1)
                     generated[:, :, h, w] = generated_pixel
 
         num_cols = math.sqrt(num_samples)
@@ -57,13 +58,15 @@ class AutoRegressiveModelSampler:
         """sample half of the image from autoregressive model."""
         valid_loader = DataLoader(valid_dataset, batch_size=num_samples)
         generated = next(iter(valid_loader))[0].to(self.device)
+        generated = generated * 255.0
         generated[:, :, 14:, :] = 0
         print("AutoRegressive Half Sampling Start.")
         with torch.no_grad():
             for h in range(14, 28):
                 for w in range(28):
                     out = model(generated)
-                    generated_pixel = torch.bernoulli(out[:, :, h, w])
+                    out = torch.softmax(out[:, :, h, w], dim=1)
+                    generated_pixel = torch.multinomial(out, num_samples=1)
                     generated[:, :, h, w] = generated_pixel * 2
         num_cols = math.sqrt(num_samples)
         if not num_cols.is_integer():
