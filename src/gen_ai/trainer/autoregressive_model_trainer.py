@@ -43,7 +43,7 @@ class AutoregressiveModelTrainer(GenAITrainerBase):
         """one batch training step."""
         self.optimizer.zero_grad()
         out = model(x)
-        loss = self.criterion(out, x)
+        loss = self.criterion(out.permute(0, 2, 3, 1).reshape(-1, 256), x.reshape(-1).long())
         loss.backward()
         self.optimizer.step()
         return loss

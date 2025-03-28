@@ -117,7 +117,7 @@ class PixelCNN(nn.Module):
         self.layers = nn.Sequential(
             *[MaskedConvResidualBlock(in_channels=num_channels, kernel_size=7) for _ in range(num_layers)]
         )
-        self.out_layer = nn.Conv2d(in_channels=num_channels, out_channels=1, kernel_size=1, bias=False)
+        self.out_layer = nn.Conv2d(in_channels=num_channels, out_channels=256, kernel_size=1, bias=False)
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         """feed fowrading pixel cnn.

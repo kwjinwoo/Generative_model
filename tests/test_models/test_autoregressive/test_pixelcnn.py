@@ -34,4 +34,4 @@ def test_pixel_cnn():
 
     out = pixel_cnn(tmp_input)
 
-    assert out.size() == torch.Size([1, 1, 10, 10])
+    assert out.size() == torch.Size([1, 256, 10, 10])
