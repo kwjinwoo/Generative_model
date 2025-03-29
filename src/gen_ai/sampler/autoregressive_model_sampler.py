@@ -2,6 +2,7 @@ import math
 import os
 
 import matplotlib.pyplot as plt
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
@@ -60,6 +61,8 @@ class AutoRegressiveModelSampler:
         generated = next(iter(valid_loader))[0].to(self.device)
         generated = generated * 255.0
         generated[:, :, 14:, :] = 0
+        mask = np.zeros(list(generated.shape[2:]))
+        mask[14:, :] = 1
         print("AutoRegressive Half Sampling Start.")
         with torch.no_grad():
             for h in range(14, 28):
@@ -67,13 +70,14 @@ class AutoRegressiveModelSampler:
                     out = model(generated)
                     out = torch.softmax(out[:, :, h, w], dim=1)
                     generated_pixel = torch.multinomial(out, num_samples=1)
-                    generated[:, :, h, w] = generated_pixel * 2
+                    generated[:, :, h, w] = generated_pixel
         num_cols = math.sqrt(num_samples)
         if not num_cols.is_integer():
             raise ValueError("num_samples must be a square number.")
         for i in range(num_samples):
             plt.subplot(int(num_cols), int(num_cols), i + 1)
             plt.imshow(generated[i].permute(1, 2, 0).cpu().numpy(), cmap="gray")
+            plt.imshow(mask, cmap="Reds", alpha=0.3)
             plt.axis("off")
         plt.suptitle("PixelCNN half generated samples")
         plt.savefig(os.path.join(saved_dir, "pixelCNN_half_generate.png"))
