@@ -13,4 +13,4 @@ def test_sample(test_normalizing_model, test_dataset, tmp_path):
     sampler.sample(test_normalizing_model, test_dataset, save_dir, num_samples)
 
     assert os.path.isfile(os.path.join(save_dir, "NICE_generated.png")) is True
-    assert os.path.isfile(os.path.join(save_dir, "NICE_reconstruct.png")) is True
+    assert os.path.isfile(os.path.join(save_dir, "NICE_interpolate.png")) is True

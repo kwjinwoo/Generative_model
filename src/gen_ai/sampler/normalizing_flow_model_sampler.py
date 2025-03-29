@@ -8,7 +8,33 @@ import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 from torch.distributions import Distribution
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
+
+
+def get_random_sample(dataset: Dataset, device: torch.device) -> tuple[torch.Tensor, torch.Tensor]:
+    """get random sample for latent space interpolation.
+    it sample two data from dataset randomly. if two samples are different class, return data.
+
+    Args:
+        dataset (Dataset): dataset
+        device (torch.device): device
+
+    Raises:
+        RuntimeError: if the number of iter is exceed max iter.
+
+    Returns:
+        tuple[torch.Tensor, torch.Tensor]: randome two data.
+    """
+    MAX_ITER = 10
+    iter = 0
+    while MAX_ITER >= iter:
+        random_idx = torch.randint(0, len(dataset), (2,))
+        x1, class1 = dataset[random_idx[0]]
+        x2, class2 = dataset[random_idx[1]]
+        if class1 != class2:
+            return x1.unsqueeze(0).to(device), x2.unsqueeze(0).to(device)
+        iter += 1
+    raise RuntimeError("Exceed MAX ITER.")
 
 
 class NormalizingFlowModelSampler:
@@ -45,7 +71,7 @@ class NormalizingFlowModelSampler:
         model.to(self.device)
 
         self.random_sample(model, save_dir, num_samples)
-        self.reconstruct(model, dataset, save_dir)
+        self.interpolate_latent_space(model, dataset, save_dir)
 
     def random_sample(self, model: nn.Module, save_dir: str, num_samples: int) -> None:
         """sample image from random latent variable."""
@@ -68,22 +94,24 @@ class NormalizingFlowModelSampler:
         plt.savefig(os.path.join(save_dir, "NICE_generated.png"))
         print(f"Normalizing Flow Model Finished. saved at {save_dir}")
 
-    def reconstruct(self, model: nn.Module, dataset: Dataset, save_dir: str) -> None:
-        valid_loader = DataLoader(dataset, batch_size=8)
-        print("Normalizing Flow Model Reconstructing Strat.")
-
-        origin = next(iter(valid_loader))[0].to(self.device)
+    def interpolate_latent_space(self, model: nn.Module, dataset: Dataset, save_dir: str) -> None:
+        """Interpolate Latent Space."""
+        print("Normalizing Flow Model Interpolating Start.")
+        x1, x2 = get_random_sample(dataset, self.device)
         with torch.no_grad():
-            z, _ = model(origin, reverse=False)
-            recon, _ = model(z, reverse=True)
-        recon = recon.view(-1, 1, 28, 28)
-        fig, axes = plt.subplots(2, 8, figsize=(8, 2))
-        for i in range(8):
-            axes[0, i].imshow(origin[i].cpu().squeeze(), cmap="gray")
-            axes[0, i].axis("off")
+            z1, _ = model(x1, reverse=False)
+            z2, _ = model(x2, reverse=False)
 
-            axes[1, i].imshow(recon[i].cpu().squeeze(), cmap="gray")
-            axes[1, i].axis("off")
-        plt.suptitle("Original (Top) vs. Reconstructed (Bottom)", fontsize=16)
-        plt.savefig(os.path.join(save_dir, "NICE_reconstruct.png"))
-        print(f"Normalizing Flow Model Reconstructing Finished. saved at {save_dir}")
+            alphas = torch.linspace(0, 1, 10).to(self.device)
+            interpolated_z = torch.stack([(1 - alpha) * z1 + alpha * z2 for alpha in alphas])
+
+            generated, _ = model(interpolated_z, reverse=True)
+            generated = generated.clip(0, 1).view(-1, 1, 28, 28)
+
+        fig, axes = plt.subplots(1, 10, figsize=(10, 2))
+        for i in range(10):
+            axes[i].imshow(generated[i].squeeze().cpu(), cmap="gray")
+            axes[i].axis("off")
+        plt.suptitle("Normalizing Flow Model Interpolating")
+        plt.savefig(os.path.join(save_dir, "NICE_interpolate.png"))
+        print(f"Normalizing Flow Model Interpolating Finished. saved at {save_dir}")
