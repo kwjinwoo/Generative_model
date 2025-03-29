@@ -25,13 +25,11 @@ def test_model():
         def __init__(self):
             super().__init__()
             self.latent_dim = 10
-            self.linear = nn.Linear(in_features=10, out_features=28 * 28)
-            self.sigmoid = nn.Sigmoid()
+            self.linear = nn.Linear(in_features=10, out_features=256 * 28 * 28)
 
         def forward(self, x):
             out = self.linear(x)
-            out = self.sigmoid(out)
-            return out.view(-1, 1, 28, 28)
+            return out.view(-1, 256, 28, 28)
 
     class TestModel(nn.Module):
         def __init__(self):
@@ -39,11 +37,10 @@ def test_model():
             self.latent_dim = 10
             self.encoder = TestEncoder()
             self.decoder = TestDecoder()
-            self.conv = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=3, padding=1)
-            self.sigmoid = nn.Sigmoid()
+            self.conv = nn.Conv2d(in_channels=1, out_channels=256, kernel_size=3, padding=1)
 
         def forward(self, x):
-            return self.sigmoid(self.conv(x)), torch.rand(1), torch.rand(1)
+            return self.conv(x), torch.rand(1), torch.rand(1)
 
     return TestModel()
 

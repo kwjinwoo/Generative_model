@@ -68,7 +68,10 @@ class LatentVariableModelSampler:
             eps = torch.randn((num_samples, latent_dim), device=self.device)
 
             generated = model.decoder(eps)
-            generated = torch.bernoulli(generated)
+            generated = torch.softmax(generated, dim=1)
+            generated = generated.permute(0, 2, 3, 1).reshape(-1, 256)
+            generated = torch.multinomial(generated, num_samples=1).squeeze(-1)
+            generated = generated.view(-1, 28, 28)
 
         num_cols = math.sqrt(num_samples)
         if not num_cols.is_integer():
@@ -76,7 +79,7 @@ class LatentVariableModelSampler:
 
         for i in range(num_samples):
             plt.subplot(int(num_cols), int(num_cols), i + 1)
-            plt.imshow(generated[i].permute(1, 2, 0).cpu().numpy(), cmap="gray")
+            plt.imshow(generated[i].cpu().numpy(), cmap="gray")
             plt.axis("off")
         plt.suptitle("VAE generated samples")
         plt.savefig(os.path.join(saved_dir, "VAE_generate.png"))
@@ -91,14 +94,17 @@ class LatentVariableModelSampler:
         with torch.no_grad():
             mean, _ = model.encoder(origin)
             recon = model.decoder(mean)
-            recon = torch.bernoulli(recon)
+            recon = torch.softmax(recon, dim=1)
+            recon = recon.permute(0, 2, 3, 1).reshape(-1, 256)
+            recon = torch.multinomial(recon, num_samples=1).squeeze(-1)
+            recon = recon.view(-1, 28, 28)
 
         fig, axes = plt.subplots(2, 8, figsize=(8, 2))
         for i in range(8):
             axes[0, i].imshow(origin[i].cpu().squeeze(), cmap="gray")
             axes[0, i].axis("off")
 
-            axes[1, i].imshow(recon[i].cpu().squeeze(), cmap="gray")
+            axes[1, i].imshow(recon[i].cpu(), cmap="gray")
             axes[1, i].axis("off")
         plt.suptitle("Original (Top) vs. Reconstructed (Bottom)", fontsize=16)
         plt.savefig(os.path.join(save_dir, "VAE_reconstruct.png"))
@@ -116,11 +122,14 @@ class LatentVariableModelSampler:
             interpolated_z = torch.stack([(1 - alpha) * z1 + alpha * z2 for alpha in alphas])
 
             generated = model.decoder(interpolated_z)
-            generated = torch.bernoulli(generated)
+            generated = torch.softmax(generated, dim=1)
+            generated = generated.permute(0, 2, 3, 1).reshape(-1, 256)
+            generated = torch.multinomial(generated, num_samples=1).squeeze(-1)
+            generated = generated.view(-1, 28, 28)
 
         fig, axes = plt.subplots(1, 10, figsize=(10, 2))
         for i in range(10):
-            axes[i].imshow(generated[i].cpu().squeeze(), cmap="gray")
+            axes[i].imshow(generated[i].cpu(), cmap="gray")
             axes[i].axis("off")
 
         plt.suptitle("Latent Variable Interpolation")

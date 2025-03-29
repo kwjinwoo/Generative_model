@@ -51,13 +51,11 @@ def test_latent_model():
         def __init__(self):
             super().__init__()
             self.latent_dim = 10
-            self.linear = nn.Linear(in_features=10, out_features=28 * 28)
-            self.sigmoid = nn.Sigmoid()
+            self.linear = nn.Linear(in_features=10, out_features=256 * 28 * 28)
 
         def forward(self, x):
             out = self.linear(x)
-            out = self.sigmoid(out)
-            return out.view(-1, 1, 28, 28)
+            return out.view(-1, 256, 28, 28)
 
     class TestLatentModel(nn.Module):
         def __init__(self):

@@ -45,6 +45,7 @@ class LatentVariableModelTrainer(GenAITrainerBase):
             pbar = tqdm(data_loader, total=len(data_loader))
             for x, _ in pbar:
                 x = x.to(self.device)
+                x = x * 255.0
 
                 loss = self.one_step(model, x)
                 total_loss += loss.item()

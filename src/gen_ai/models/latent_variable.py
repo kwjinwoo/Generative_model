@@ -76,7 +76,6 @@ class Decoder(nn.Module):
                 stride=2,
                 padding=1,
             ),
-            nn.Sigmoid(),
         )
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
@@ -100,7 +99,7 @@ class ConvolutionalVAE(nn.Module):
         super().__init__()
         self.latent_dim = latent_dim
         self.encoder = Encoder(img_channel, latent_dim)
-        self.decoder = Decoder(latent_dim, img_channel)
+        self.decoder = Decoder(latent_dim, 256)
 
     def reparameterizing(self, mean: torch.Tensor, log_var: torch.Tensor) -> torch.Tensor:
         """reparameterizing trick for VAE.
@@ -147,7 +146,7 @@ def elbo_loss(x: torch.Tensor, x_hat: torch.Tensor, mean: torch.Tensor, log_var:
     Returns:
         torch.Tensor: ELBO loss.
     """
-    reconst_loss = F.binary_cross_entropy(x_hat, x, reduction="sum")
+    reconst_loss = F.cross_entropy(x_hat.permute(0, 2, 3, 1).reshape(-1, 256), x.reshape(-1).long(), reduction="sum")
     kl_div = -0.5 * torch.sum(1 + log_var - mean.pow(2) - log_var.exp())
     return reconst_loss + kl_div
 
