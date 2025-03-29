@@ -103,7 +103,7 @@ class NormalizingFlowModelSampler:
             z2, _ = model(x2, reverse=False)
 
             alphas = torch.linspace(0, 1, 10).to(self.device)
-            interpolated_z = torch.stack([(1 - alpha) * z1 + alpha * z2 for alpha in alphas])
+            interpolated_z = torch.stack([(1 - alpha) * z1 + alpha * z2 for alpha in alphas]).squeeze(1)
 
             generated, _ = model(interpolated_z, reverse=True)
             generated = generated.clip(0, 1).view(-1, 1, 28, 28)
