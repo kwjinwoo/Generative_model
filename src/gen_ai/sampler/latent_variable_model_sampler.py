@@ -91,7 +91,6 @@ class LatentVariableModelSampler:
         print("Latent Variable Model Reconstructing Start")
 
         origin = next(iter(valid_loader))[0].to(self.device)
-        origin = origin * 255.0
         with torch.no_grad():
             mean, _ = model.encoder(origin)
             recon = model.decoder(mean)
@@ -115,8 +114,7 @@ class LatentVariableModelSampler:
         """interpolate latent space."""
         print("Latent Variable Model Interpolating Start.")
         x1, x2 = get_random_sample(dataset, self.device)
-        x1 *= 255.0
-        x2 *= 255.0
+
         with torch.no_grad():
             z1, _ = model.encoder(x1)
             z2, _ = model.encoder(x2)

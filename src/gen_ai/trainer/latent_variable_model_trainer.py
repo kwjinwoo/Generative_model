@@ -45,7 +45,6 @@ class LatentVariableModelTrainer(GenAITrainerBase):
             pbar = tqdm(data_loader, total=len(data_loader))
             for x, _ in pbar:
                 x = x.to(self.device)
-                x = x * 255.0
 
                 loss = self.one_step(model, x)
                 total_loss += loss.item()
@@ -58,7 +57,7 @@ class LatentVariableModelTrainer(GenAITrainerBase):
         """one batch training step."""
         self.optimizer.zero_grad()
         out, mean, log_var = model(x)
-        loss = self.criterion(x, out, mean, log_var)
+        loss = self.criterion(x * 255.0, out, mean, log_var)
         loss.backward()
         self.optimizer.step()
         return loss
