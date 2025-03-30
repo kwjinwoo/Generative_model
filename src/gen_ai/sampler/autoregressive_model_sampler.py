@@ -59,7 +59,6 @@ class AutoRegressiveModelSampler:
         """sample half of the image from autoregressive model."""
         valid_loader = DataLoader(valid_dataset, batch_size=num_samples)
         generated = next(iter(valid_loader))[0].to(self.device)
-        generated = generated * 255.0
         generated[:, :, 14:, :] = 0
         mask = np.zeros(list(generated.shape[2:]))
         mask[14:, :] = 1

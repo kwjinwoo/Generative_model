@@ -31,8 +31,6 @@ class AutoregressiveModelTrainer(GenAITrainerBase):
             pbar = tqdm(data_loader, total=len(data_loader))
             for x, _ in pbar:
                 x = x.to(self.device)
-                x = x * 255.0
-
                 loss = self.one_step(model, x)
                 total_loss += loss.item()
             print(f"EPOCH {epoch:>3d} loss: {total_loss / len(data_loader):>6f}")
@@ -43,7 +41,7 @@ class AutoregressiveModelTrainer(GenAITrainerBase):
         """one batch training step."""
         self.optimizer.zero_grad()
         out = model(x)
-        loss = self.criterion(out.permute(0, 2, 3, 1).reshape(-1, 256), x.reshape(-1).long())
+        loss = self.criterion(out.permute(0, 2, 3, 1).reshape(-1, 256), (x * 255.0).reshape(-1).long())
         loss.backward()
         self.optimizer.step()
         return loss
