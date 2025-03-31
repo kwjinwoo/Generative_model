@@ -20,4 +20,4 @@ def test_autoregressive_model_save(test_model, test_trainer, test_sampler, test_
     model = AutoregressiveModel(test_model, test_trainer, test_sampler, test_dataset)
     model.save(save_path)
 
-    assert os.path.isfile(os.path.join(save_path, "autoregressive_model.pth"))
+    assert os.path.isfile(os.path.join(save_path, "PixelCNN.pth"))

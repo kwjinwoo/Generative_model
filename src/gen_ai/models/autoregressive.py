@@ -169,5 +169,6 @@ class AutoregressiveModel(GenAIModelBase):
             os.makedirs(save_dir)
         torch.save(
             self.torch_module.state_dict(),
-            os.path.join(save_dir, "autoregressive_model.pth"),
+            os.path.join(save_dir, f"{self.torch_module_class.__name__}.pth"),
         )
+        print(os.path.join(save_dir, f"{self.torch_module_class.__name__}.pth"))

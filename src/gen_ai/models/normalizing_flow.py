@@ -175,4 +175,4 @@ class NormalizingFlowModel(GenAIModelBase):
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
 
-        torch.save(self.torch_module.state_dict(), os.path.join(save_dir, "NICE.pth"))
+        torch.save(self.torch_module.state_dict(), os.path.join(save_dir, f"{self.torch_module_class.__name__}.pth"))
