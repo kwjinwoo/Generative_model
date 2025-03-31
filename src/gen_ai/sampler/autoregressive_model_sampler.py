@@ -42,7 +42,7 @@ class AutoRegressiveModelSampler:
                     out = model(generated)
                     out = torch.softmax(out[:, :, h, w], dim=1)
                     generated_pixel = torch.multinomial(out, num_samples=1)
-                    generated[:, :, h, w] = generated_pixel
+                    generated[:, :, h, w] = generated_pixel / 255.0
 
         num_cols = math.sqrt(num_samples)
         if not num_cols.is_integer():
@@ -69,7 +69,7 @@ class AutoRegressiveModelSampler:
                     out = model(generated)
                     out = torch.softmax(out[:, :, h, w], dim=1)
                     generated_pixel = torch.multinomial(out, num_samples=1)
-                    generated[:, :, h, w] = generated_pixel
+                    generated[:, :, h, w] = generated_pixel / 255.0
         num_cols = math.sqrt(num_samples)
         if not num_cols.is_integer():
             raise ValueError("num_samples must be a square number.")
