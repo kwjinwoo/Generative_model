@@ -28,8 +28,6 @@ def test_dcgan():
 
     temp_inp = torch.randn(2, noise_dim)
 
-    gen_output = dcgan.generator_forward(temp_inp)
-    assert gen_output.size() == (2, 1, 28, 28)
-
-    disc_output = dcgan.discriminator_forward(gen_output)
-    assert disc_output.size() == (2, 1)
+    generated_image, discriminator_output = dcgan(temp_inp)
+    assert generated_image.size() == (2, 1, 28, 28)
+    assert discriminator_output.size() == (2, 1)

@@ -78,11 +78,18 @@ class DCGAN(nn.Module):
         self.generator = Generator(noise_dim)
         self.discriminator = Discriminator()
 
-    def generator_forward(self, inputs: torch.Tensor) -> torch.Tensor:
-        return self.generator(inputs)
+    def forward(self, input: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        """forward pass of DCGAN.
 
-    def discriminator_forward(self, inputs: torch.Tensor) -> torch.Tensor:
-        return self.discriminator(inputs)
+        Args:
+            input (torch.Tensor): input tensor.
+
+        Returns:
+            tuple[torch.Tensor, torch.Tensor]: generated image and discriminator output.
+        """
+        generated_image = self.generator(input)
+        discriminator_output = self.discriminator(generated_image)
+        return generated_image, discriminator_output
 
 
 class GenerativeAdversarialNetworkModel(GenAIModelBase):
