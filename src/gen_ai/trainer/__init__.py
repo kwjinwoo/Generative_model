@@ -6,6 +6,35 @@ from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
 
+class OptimizerManager:
+    """Manages one or multiple optimizers for training models."""
+
+    def __init__(self):
+        self._optimizers = {}
+
+    def set_optimizer(self, name: str, optimizer: Optimizer) -> None:
+        """Set optimizer for the model."""
+        self._optimizers[name] = optimizer
+
+    def get_optimizer(self, name: str) -> Optimizer:
+        """Get optimizer for the model."""
+        if name not in self._optimizers:
+            raise ValueError(f"Optimizer {name} is not set.")
+        return self._optimizers[name]
+
+    @property
+    def optimizer(self) -> Optimizer:
+        """Get the default optimizer."""
+        if "default" not in self._optimizers:
+            raise ValueError("Default optimizer is not set.")
+        return self._optimizers["default"]
+
+    @optimizer.setter
+    def optimizer(self, optimizer: Optimizer) -> None:
+        """Set the default optimizer."""
+        self._optimizers["default"] = optimizer
+
+
 class GenAITrainerBase(ABC):
     """Generative AI Trainer Base Class."""
 
@@ -17,21 +46,27 @@ class GenAITrainerBase(ABC):
         """
         self.config = config
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.optimizer_manager = OptimizerManager()
 
-        self._optimizer = None
         self._criterion = None
 
     @property
     def optimizer(self) -> Optimizer:
         """Get optimizer for the model."""
-        if self._optimizer is None:
-            raise ValueError("Optimizer is not set.")
-        return self._optimizer
+        return self.optimizer_manager.optimizer
 
     @optimizer.setter
     def optimizer(self, optimizer: Optimizer) -> None:
         """Set optimizer for the model."""
-        self._optimizer = optimizer
+        self.optimizer_manager.optimizer = optimizer
+
+    def get_optimizer(self, name: str) -> Optimizer:
+        """Get optimizer by name."""
+        return self.optimizer_manager.get_optimizer(name)
+
+    def set_optimizer(self, name: str, optimizer: Optimizer) -> None:
+        """Set optimizer by name."""
+        self.optimizer_manager.set_optimizer(name, optimizer)
 
     @property
     def criterion(self) -> nn.Module:
@@ -45,8 +80,8 @@ class GenAITrainerBase(ABC):
         """Set criterion for the model."""
         self._criterion = criterion
 
-    def _get_optimizer(self, model: nn.Module) -> torch.optim.Optimizer:
-        """Get optimizer for the model.
+    def _make_optimizer(self, model: nn.Module) -> torch.optim.Optimizer:
+        """make optimizer for the model.
 
         Args:
             model (nn.Module): model for training.

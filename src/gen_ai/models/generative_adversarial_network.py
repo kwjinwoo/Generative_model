@@ -1,3 +1,5 @@
+import os
+
 import torch
 import torch.nn as nn
 
@@ -15,7 +17,7 @@ class Discriminator(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.3),
         )
-        self.classifer = nn.Linear(in_features=7 * 7 * 128, out_features=1)
+        self.classifer = nn.Sequential(nn.Linear(in_features=7 * 7 * 128, out_features=1), nn.Sigmoid())
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         x = self.layers(inputs)
@@ -75,21 +77,27 @@ class Generator(nn.Module):
 class DCGAN(nn.Module):
     def __init__(self, noise_dim: int) -> None:
         super().__init__()
+        self.noise_dim = noise_dim
         self.generator = Generator(noise_dim)
         self.discriminator = Discriminator()
 
-    def forward(self, input: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-        """forward pass of DCGAN.
+    def forward(self, input: torch.Tensor, generator_only: bool) -> tuple[torch.Tensor, torch.Tensor] | torch.Tensor:
+        """forward of DCGAN.
 
         Args:
             input (torch.Tensor): input tensor.
+            generator_only (bool): if True, return only fake output.
 
         Returns:
-            tuple[torch.Tensor, torch.Tensor]: generated image and discriminator output.
+            tuple[torch.Tensor, torch.Tensor]: fake output and real output
         """
-        generated_image = self.generator(input)
-        discriminator_output = self.discriminator(generated_image)
-        return generated_image, discriminator_output
+        noise = torch.randn(input.size(0), self.noise_dim, device=input.device)
+        generated_image = self.generator(noise)
+        fake_output = self.discriminator(generated_image)
+        if generator_only:
+            return fake_output
+        real_output = self.discriminator(input)
+        return fake_output, real_output
 
 
 class GenerativeAdversarialNetworkModel(GenAIModelBase):
@@ -100,3 +108,20 @@ class GenerativeAdversarialNetworkModel(GenAIModelBase):
 
     def train(self) -> None:
         self.trainer.train(self.torch_module, self.dataset.train_loader)
+
+    def sample(self) -> None:
+        self.sampler.sample(self.torch_module, self.dataset.test_loader)
+
+    def load(self, file_path: str) -> None:
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File {file_path} does not exist.")
+        self.torch_module.load_state_dict(torch.load(file_path))
+
+    def save(self, save_dir):
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        torch.save(
+            self.torch_module.state_dict(),
+            os.path.join(save_dir, f"{self.torch_module_class.__name__}.pth"),
+        )
+        print(os.path.join(save_dir, f"{self.torch_module_class.__name__}.pth"))

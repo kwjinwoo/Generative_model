@@ -37,7 +37,7 @@ class LatentVariableModelTrainer(GenAITrainerBase):
         model.train()
         model.to(self.device)
 
-        self.optimizer = self._get_optimizer(model)
+        self.optimizer = self._make_optimizer(model)
 
         print("Latent Variable Model Training Start")
         for epoch in range(self.config["num_epochs"]):

@@ -22,7 +22,7 @@ class AutoregressiveModelTrainer(GenAITrainerBase):
         model.train()
         model.to(self.device)
 
-        self.optimizer = self._get_optimizer(model)
+        self.optimizer = self._make_optimizer(model)
         self.criterion = nn.CrossEntropyLoss()
 
         print("AutoRegressive Model Training Start")

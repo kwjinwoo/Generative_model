@@ -3,7 +3,11 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 
-from gen_ai.trainer.generative_adversarial_network_trainer import GenerativeAdversarialNetworkTrainer
+
+@pytest.fixture
+def test_config():
+    config = {"num_epochs": 1, "learning_rate": 0.001, "optimizer": "adam"}
+    return config
 
 
 @pytest.fixture
@@ -46,7 +50,7 @@ def test_model():
 
 
 @pytest.fixture
-def test_dataset():
+def test_data_loader():
     class TestDataset(Dataset):
         def __init__(self):
             self.data = torch.rand(10, 1, 28, 28)
@@ -57,20 +61,4 @@ def test_dataset():
         def __getitem__(self, idx):
             return self.data[idx], 0
 
-    class TestDatasetClass:
-        def __init__(self, dataset):
-            self.valid_dataset = dataset
-            self.train_loader = DataLoader(dataset, batch_size=2)
-
-    return TestDatasetClass(TestDataset())
-
-
-@pytest.fixture
-def test_trainer():
-    trainer_config = {"num_epochs": 1, "learning_rate": 0.001, "optimizer": "adam"}
-    return GenerativeAdversarialNetworkTrainer(trainer_config)
-
-
-@pytest.fixture
-def test_sampler():
-    return None
+    return DataLoader(TestDataset(), batch_size=2)
