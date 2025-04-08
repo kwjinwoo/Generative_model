@@ -47,3 +47,18 @@ def normalizaing_flow_model_config(tmp_path):
         yaml.dump(data, f)
 
     return GenAIConfig(config_path)
+
+
+@pytest.fixture
+def gan_model_config(tmp_path):
+    config_path = str(tmp_path / "gan_config.yaml")
+    data = {
+        "model_type": "generative_adversarial_network",
+        "module_config": {"noise_dim": 100},
+        "data": {"batch_size": 32, "num_workers": 4},
+        "train": {},
+    }
+    with open(config_path, "w") as f:
+        yaml.dump(data, f)
+
+    return GenAIConfig(config_path)

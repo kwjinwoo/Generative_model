@@ -2,6 +2,7 @@ import pytest
 
 from gen_ai.factory import GenAIModelFactory
 from gen_ai.models.autoregressive import AutoregressiveModel
+from gen_ai.models.generative_adversarial_network import GenerativeAdversarialNetworkModel
 from gen_ai.models.latent_variable import LatentVariableModel
 from gen_ai.models.normalizing_flow import NormalizingFlowModel
 
@@ -12,6 +13,7 @@ from gen_ai.models.normalizing_flow import NormalizingFlowModel
         ("autoregressive_config", AutoregressiveModel),
         ("latent_variable_config", LatentVariableModel),
         ("normalizaing_flow_model_config", NormalizingFlowModel),
+        ("gan_model_config", GenerativeAdversarialNetworkModel),
     ],
 )
 def test_model_factory(config, expected, request):

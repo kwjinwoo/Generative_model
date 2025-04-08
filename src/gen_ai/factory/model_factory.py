@@ -9,6 +9,7 @@ from gen_ai.models import GenAIModelBase
 
 if typing.TYPE_CHECKING:
     from gen_ai.models.autoregressive import AutoregressiveModel
+    from gen_ai.models.generative_adversarial_network import GenerativeAdversarialNetworkModel
     from gen_ai.models.latent_variable import LatentVariableModel
     from gen_ai.models.normalizing_flow import NormalizingFlowModel
 
@@ -73,6 +74,28 @@ def make_normalizing_flow_model(config: GenAIConfig, dataset: MNISTDataset) -> N
     return NormalizingFlowModel(torch_module, trainer, sampler, dataset)
 
 
+def make_generative_adversarial_network_model(
+    config: GenAIConfig, dataset: MNISTDataset
+) -> GenerativeAdversarialNetworkModel:
+    """Make Generative Adversarial Network Model.
+
+    Args:
+        config (GenAIConfig): Config.
+        dataset (MNISTDataset): Dataset.
+
+    Returns:
+        None: Generative Adversarial Network Model.
+    """
+    from gen_ai.models.generative_adversarial_network import GenerativeAdversarialNetworkModel
+    from gen_ai.sampler.generative_adversarial_network_sampler import GenerativeAdversarialNetworkSampler
+    from gen_ai.trainer.generative_adversarial_network_trainer import GenerativeAdversarialNetworkTrainer
+
+    torch_module = GenerativeAdversarialNetworkModel.torch_module_class(**config.module_config)
+    trainer = GenerativeAdversarialNetworkTrainer(config.train_config)
+    sampler = GenerativeAdversarialNetworkSampler()
+    return GenerativeAdversarialNetworkModel(torch_module, trainer, sampler, dataset)
+
+
 class GenAIModelFactory:
     """Generative AI model factory."""
 
@@ -87,6 +110,7 @@ class GenAIModelFactory:
             ModelType.autoregressive: make_autoregressive_model,
             ModelType.latent_variable: make_latent_variable_model,
             ModelType.normalizing_flow: make_normalizing_flow_model,
+            ModelType.generative_adversarial_network: make_generative_adversarial_network_model,
         }
 
     def make_model(self) -> GenAIModelBase:
