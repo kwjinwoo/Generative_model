@@ -41,8 +41,8 @@ class GenerativeAdversarialNetworkTrainer(GenAITrainerBase):
             for x, _ in pbar:
                 x = x.to(self.device)
                 generator_loss, discriminator_loss = self.one_step(model, x)
-                generator_loss += generator_loss.item()
-                discriminator_loss += discriminator_loss.item()
+                total_generator_loss += generator_loss.item()
+                total_discriminator_loss += discriminator_loss.item()
             print(
                 f"EPOCH {epoch:>3d} generator loss: {total_generator_loss / len(data_loader):>6f} discriminator loss: "
                 f"{total_discriminator_loss / len(data_loader):>6f}"
