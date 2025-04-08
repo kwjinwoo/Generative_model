@@ -46,5 +46,5 @@ class GenerativeAdversarialNetworkSampler:
             plt.imshow(generated[i].permute(1, 2, 0).cpu().numpy(), cmap="gray")
             plt.axis("off")
         plt.suptitle("GAN generated samples")
-        plt.savefig(os.path.join(save_dir, "GAN_generated.png"))
+        plt.savefig(os.path.join(save_dir, "DCGAN_generated.png"))
         print(f"GAN Finished. saved at {save_dir}")
