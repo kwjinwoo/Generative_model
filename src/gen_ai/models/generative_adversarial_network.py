@@ -109,8 +109,8 @@ class GenerativeAdversarialNetworkModel(GenAIModelBase):
     def train(self) -> None:
         self.trainer.train(self.torch_module, self.dataset.train_loader)
 
-    def sample(self) -> None:
-        self.sampler.sample(self.torch_module, self.dataset.test_loader)
+    def sample(self, save_dir: str, num_samples: int) -> None:
+        self.sampler.sample(self.torch_module, save_dir, num_samples)
 
     def load(self, file_path: str) -> None:
         if not os.path.exists(file_path):

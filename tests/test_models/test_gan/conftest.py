@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 
+from gen_ai.sampler.generative_adversarial_network_sampler import GenerativeAdversarialNetworkSampler
 from gen_ai.trainer.generative_adversarial_network_trainer import GenerativeAdversarialNetworkTrainer
 
 
@@ -73,4 +74,4 @@ def test_trainer():
 
 @pytest.fixture
 def test_sampler():
-    return None
+    return GenerativeAdversarialNetworkSampler()
