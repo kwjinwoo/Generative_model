@@ -12,9 +12,9 @@ class SinusoidalTimeEmbedding(nn.Module):
     def forward(self, t: torch.Tensor) -> torch.Tensor:
         half_dim = self.dim // 2
         emb = torch.exp(torch.arange(half_dim, device=t.device) * -(torch.log(torch.tensor(10000.0)) / (half_dim - 1)))
-        emb = t[:, None] * emb[None, :]  # [B, dim//2]
+        emb = t[:, None] * emb[None, :]
         emb = torch.cat([torch.sin(emb), torch.cos(emb)], dim=-1)
-        return emb  # [B, dim]
+        return emb
 
 
 class ConvBlock(nn.Module):
@@ -33,7 +33,7 @@ class ConvBlock(nn.Module):
     def forward(self, x: torch.Tensor, t_emb: torch.Tensor) -> torch.Tensor:
         h = self.conv(x)
         t = self.time_proj(t_emb)[:, :, None, None]
-        return h + t  # broadcast time embedding
+        return h + t
 
 
 class Downsample(nn.Module):
@@ -58,7 +58,7 @@ class UNet(nn.Module):
     def __init__(self, diffusion_step: int, time_emb_dim: int):
         super().__init__()
         self.diffusion_step = diffusion_step
-        self.register_buffer("betas", torch.linspace(0.0001, 0.02, diffusion_step).float())  # [T]
+        self.register_buffer("betas", torch.linspace(0.0001, 0.02, diffusion_step).float())
         self.register_buffer("alphas", 1.0 - self.betas)
         self.register_buffer("alphas_hat", torch.cumprod(self.alphas, dim=0))
 
@@ -82,12 +82,10 @@ class UNet(nn.Module):
     def forward(self, x: torch.Tensor, t: torch.Tensor) -> torch.Tensor:
         t_emb = self.time_mlp(t)
 
-        # Encoder
         x1 = self.enc1(x, t_emb)
         x2 = self.enc2(self.down1(x1), t_emb)
         xb = self.bot(self.down2(x2), t_emb)
 
-        # Decoder
         xd2 = self.dec2(torch.cat([self.up2(xb), x2], dim=1), t_emb)
         xd1 = self.dec1(torch.cat([self.up1(xd2), x1], dim=1), t_emb)
 
