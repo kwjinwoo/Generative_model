@@ -62,3 +62,18 @@ def gan_model_config(tmp_path):
         yaml.dump(data, f)
 
     return GenAIConfig(config_path)
+
+
+@pytest.fixture
+def diffusion_model_config(tmp_path):
+    config_path = str(tmp_path / "diffusion_config.yaml")
+    data = {
+        "model_type": "diffusion",
+        "module_config": {"diffusion_step": 10, "time_emb_dim": 128},
+        "data": {"batch_size": 32, "num_workers": 4},
+        "train": {},
+    }
+    with open(config_path, "w") as f:
+        yaml.dump(data, f)
+
+    return GenAIConfig(config_path)

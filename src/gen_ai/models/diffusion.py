@@ -102,7 +102,7 @@ class UNet(nn.Module):
 
 
 class DiffusionModel(GenAIModelBase):
-    torch_module = UNet
+    torch_module_class = UNet
 
     def __init__(self, torch_module, trainer, sampler, dataset) -> None:
         super().__init__(torch_module, trainer, sampler, dataset)

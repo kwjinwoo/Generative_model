@@ -11,4 +11,4 @@ def test_random_sample(test_gan_model, tmp_path):
 
     sampler.random_sample(test_gan_model, save_dir, num_samples)
 
-    assert os.path.isfile(os.path.join(save_dir, "GAN_generated.png")) is True
+    assert os.path.isfile(os.path.join(save_dir, "DCGAN_generated.png")) is True

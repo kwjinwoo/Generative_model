@@ -96,6 +96,26 @@ def make_generative_adversarial_network_model(
     return GenerativeAdversarialNetworkModel(torch_module, trainer, sampler, dataset)
 
 
+def make_diffusion_model(config: GenAIConfig, dataset: MNISTDataset) -> GenAIModelBase:
+    """Make Diffusion Model.
+
+    Args:
+        config (GenAIConfig): Config.
+        dataset (MNISTDataset): Dataset.
+
+    Returns:
+        GenAIModelBase: Diffusion Model.
+    """
+    from gen_ai.models.diffusion import DiffusionModel
+    from gen_ai.sampler.diffusion_sampler import DiffusionSampler
+    from gen_ai.trainer.diffusion_trainer import DiffusionTrainer
+
+    torch_module = DiffusionModel.torch_module_class(**config.module_config)
+    trainer = DiffusionTrainer(config.train_config)
+    sampler = DiffusionSampler()
+    return DiffusionModel(torch_module, trainer, sampler, dataset)
+
+
 class GenAIModelFactory:
     """Generative AI model factory."""
 
@@ -111,6 +131,7 @@ class GenAIModelFactory:
             ModelType.latent_variable: make_latent_variable_model,
             ModelType.normalizing_flow: make_normalizing_flow_model,
             ModelType.generative_adversarial_network: make_generative_adversarial_network_model,
+            ModelType.diffusion: make_diffusion_model,
         }
 
     def make_model(self) -> GenAIModelBase:

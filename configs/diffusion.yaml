@@ -1,0 +1,11 @@
+model_type: "diffusion"
+module_config:
+  diffusion_step: 300
+  time_emb_dim: 64
+data:
+  batch_size: 128
+  num_workers: 4
+train:
+  num_epochs: 20
+  learning_rate: 0.001
+  optimizer: "adam"
