@@ -129,3 +129,20 @@ def test_gan_model():
             return fake_output, real_output
 
     return GAN()
+
+
+@pytest.fixture
+def test_diffusion_model():
+    class DiffusionModel(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.register_buffer("betas", torch.linspace(0.0001, 0.02, 1000))
+            self.register_buffer("alphas", 1.0 - self.betas)
+            self.register_buffer("alphas_hat", torch.cumprod(self.alphas, dim=0))
+            self.diffusion_step = 10
+            self.conv = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=3, padding=1)
+
+        def forward(self, x, t):
+            return self.conv(x)
+
+    return DiffusionModel()

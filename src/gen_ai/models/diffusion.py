@@ -1,3 +1,5 @@
+import os
+
 import torch
 import torch.nn as nn
 
@@ -107,3 +109,26 @@ class DiffusionModel(GenAIModelBase):
 
     def train(self) -> None:
         self.trainer.train(self.torch_module, self.dataset.train_loader)
+
+    def sample(self, save_dir, num_samples):
+        self.sampler.sample(self.torch_module, save_dir, num_samples)
+
+    def load(self, file_path: str) -> None:
+        """load trained model from file path."""
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File {file_path} does not exist.")
+        self.torch_module.load_state_dict(torch.load(file_path, map_location=self.sampler.device, weights_only=True))
+
+    def save(self, save_dir: str) -> None:
+        """save trained model to save dir.
+
+        Args:
+            save_dir (str): svae directory.
+        """
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        torch.save(
+            self.torch_module.state_dict(),
+            os.path.join(save_dir, f"{self.torch_module_class.__name__}.pth"),
+        )
+        print(os.path.join(save_dir, f"{self.torch_module_class.__name__}.pth"))
