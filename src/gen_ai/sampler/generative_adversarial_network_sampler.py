@@ -6,6 +6,8 @@ import torch
 
 
 class GenerativeAdversarialNetworkSampler:
+    """ "Generative Adversarial Network Sampler for GAN models."""
+
     def __init__(self) -> None:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

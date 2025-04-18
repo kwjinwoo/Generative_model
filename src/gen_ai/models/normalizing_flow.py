@@ -8,6 +8,7 @@ from gen_ai.models import GenAIModelBase
 
 
 class StandardLogisticDistribution:
+    """Standard Logistic Distribution."""
 
     def __init__(self, data_dim: int, device: torch.device):
         self.m = TransformedDistribution(
@@ -35,6 +36,8 @@ class StandardLogisticDistribution:
 
 
 class AdditiveCouplingLayer(nn.Module):
+    """Additive Coupling Layer."""
+
     def __init__(self, input_dim: int, hidden_dim: int, mask_type: str) -> None:
         super().__init__()
         self.mask_type = mask_type
@@ -60,7 +63,18 @@ class AdditiveCouplingLayer(nn.Module):
         else:
             return self.forward_mapping(x1, x2, x.size())
 
-    def chunk(self, x: torch.Tensor) -> torch.Tensor:
+    def chunk(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        """Chunk the input tensor into two parts based on the mask type.
+
+        Args:
+            x (torch.Tensor): input tensor of shape (batch_size, input_dim)
+
+        Raises:
+            ValueError: Invalid Mask Type.
+
+        Returns:
+            tuple[torch.Tensor, torch.Tensor]: two chunks of the input tensor based on the mask type.
+        """
         if self.mask_type == "odd":
             return x[:, 1::2], x[:, 0::2]
         elif self.mask_type == "even":
@@ -69,6 +83,8 @@ class AdditiveCouplingLayer(nn.Module):
             raise ValueError(f"Invalid Mask Type. {self.mask_tpye}")
 
     def combine(self, x1: torch.Tensor, x2: torch.Tensor, size: torch.Size) -> torch.Tensor:
+        """Combine the two chunks of the input tensor based on the mask type."""
+
         x = torch.empty(size, device=x1.device)
         if self.mask_type == "odd":
             x[:, 1::2] = x1
@@ -81,17 +97,21 @@ class AdditiveCouplingLayer(nn.Module):
         return x
 
     def forward_mapping(self, x1: torch.Tensor, x2: torch.Tensor, size: torch.Size) -> torch.Tensor:
+        """Forward mapping of the additive coupling layer."""
         h1 = x1
         h2 = x2 + self.layer(x1)
         return self.combine(h1, h2, size)
 
     def inverse_mapping(self, z1: torch.Tensor, z2: torch.Tensor, size: torch.Size) -> torch.Tensor:
+        """Inverse mapping of the additive coupling layer."""
         h1 = z1
         h2 = z2 - self.layer(z1)
         return self.combine(h1, h2, size)
 
 
 class ScalingLayer(nn.Module):
+    """Scaling Layer."""
+
     def __init__(self, input_dim: int) -> None:
         super().__init__()
         self.scale = nn.Parameter(torch.randn(input_dim))
@@ -104,6 +124,7 @@ class ScalingLayer(nn.Module):
 
 
 class NICE(nn.Module):
+    """NICE model."""
 
     def __init__(self, num_layers: int, hidden_dim: int):
         super().__init__()
@@ -138,11 +159,22 @@ def normalizing_flow_loss(
     log_det_jacobian: torch.Tensor,
     prior: torch.distributions.Distribution,
 ) -> torch.Tensor:
+    """Normalizing Flow Loss.
+    Args:
+        z (torch.Tensor): latent variable.
+        log_det_jacobian (torch.Tensor): log determinant of the Jacobian.
+        prior (torch.distributions.Distribution): prior distribution.
+
+    Returns:
+        torch.Tensor: loss value.
+    """
     log_prob = torch.sum(prior.log_prob(z), dim=1)
     return -(log_prob + log_det_jacobian).mean()
 
 
 class NormalizingFlowModel(GenAIModelBase):
+    """Normalizing Flow Model."""
+
     torch_module_class = NICE
 
     def __init__(self, torch_module: NICE, trainer, sampler, dataset):

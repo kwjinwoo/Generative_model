@@ -7,6 +7,8 @@ from gen_ai.models import GenAIModelBase
 
 
 class Discriminator(nn.Module):
+    """Discriminator for DCGAN."""
+
     def __init__(self) -> None:
         super().__init__()
         self.layers = nn.Sequential(
@@ -26,6 +28,8 @@ class Discriminator(nn.Module):
 
 
 class Generator(nn.Module):
+    """Generator for DCGAN."""
+
     def __init__(self, noise_dim: int) -> None:
         super().__init__()
 
@@ -75,6 +79,8 @@ class Generator(nn.Module):
 
 
 class DCGAN(nn.Module):
+    """DCGAN model."""
+
     def __init__(self, noise_dim: int) -> None:
         super().__init__()
         self.noise_dim = noise_dim
@@ -101,23 +107,40 @@ class DCGAN(nn.Module):
 
 
 class GenerativeAdversarialNetworkModel(GenAIModelBase):
+    """Generative Adversarial Network model."""
+
     torch_module_class = DCGAN
 
     def __init__(self, torch_model, trainer, sampler, dataset):
         super().__init__(torch_model, trainer, sampler, dataset)
 
     def train(self) -> None:
+        """Train the model."""
         self.trainer.train(self.torch_module, self.dataset.train_loader)
 
     def sample(self, save_dir: str, num_samples: int) -> None:
+        """Sample the model."""
         self.sampler.sample(self.torch_module, save_dir, num_samples)
 
     def load(self, file_path: str) -> None:
+        """Load the model.
+
+        Args:
+            file_path (str): path to the model file.
+
+        Raises:
+            FileNotFoundError: if the file does not exist.
+        """
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File {file_path} does not exist.")
         self.torch_module.load_state_dict(torch.load(file_path))
 
-    def save(self, save_dir):
+    def save(self, save_dir: str) -> None:
+        """Save the model.
+
+        Args:
+            save_dir (str): save directory.
+        """
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         torch.save(

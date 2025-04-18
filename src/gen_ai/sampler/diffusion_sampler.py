@@ -7,6 +7,8 @@ import torch.nn as nn
 
 
 class DiffusionSampler:
+    """Diffusion Sampler for diffusion models."""
+
     def __init__(self) -> None:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -26,6 +28,8 @@ class DiffusionSampler:
 
     @torch.no_grad()
     def p_sample_loop(self, model: nn.Module, num_samples: int):
+        """sample from diffusion model."""
+
         diffusion_step = model.diffusion_step
         x = torch.randn([num_samples, 1, 28, 28]).to(self.device)
         for t_ in reversed(range(diffusion_step)):
